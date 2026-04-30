@@ -59,7 +59,7 @@ void ABP_C_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	{
 		EnhancedInputComponent -> BindAction(JumpAction, ETriggerEvent::Triggered, this, &ABP_C_Player::PlayerJump);
 		EnhancedInputComponent -> BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABP_C_Player::PlayerMove);
-		EnhancedInputComponent -> BindAction(ShootAction, ETriggerEvent::Triggered, this, &ABP_C_Player::PlayerShoot);
+		EnhancedInputComponent -> BindAction(DashAction, ETriggerEvent::Triggered, this, &ABP_C_Player::PlayerDash);
 		EnhancedInputComponent -> BindAction(LookAction, ETriggerEvent::Triggered, this, &ABP_C_Player::PlayerLook);
 	}
 	
@@ -82,8 +82,13 @@ void ABP_C_Player::PlayerMove(const FInputActionValue& ActionValue)
 	// GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, TEXT("MOVING!"));
 }
 
-void ABP_C_Player::PlayerShoot()
+void ABP_C_Player::PlayerDash(const FInputActionValue& ActionValue)
 {
+	FVector2D ActionVector = ActionValue.Get<FVector2D>(); 
+	GetActorForwardVector().X;
+	
+	AddMovementInput(GetActorForwardVector(), ActionVector.Y);
+	AddMovementInput(GetActorRightVector(), ActionVector.X);
 }
 
 void ABP_C_Player::PlayerLook(const FInputActionValue& ActionValue)

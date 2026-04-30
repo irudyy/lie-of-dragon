@@ -49,14 +49,14 @@ public:
 	UInputAction* LookAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* ShootAction;
+	UInputAction* DashAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* InteractAction;
 	
 	void PlayerJump();
 	void PlayerMove(const FInputActionValue& ActionValue);
-	void PlayerShoot();
+	void PlayerDash(const FInputActionValue& ActionValue);
 	void PlayerLook(const FInputActionValue& ActionValue);
 	void PlayerInteract();
 	
