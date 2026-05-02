@@ -74,7 +74,7 @@ public:
 	/** Please add a variable description */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Default")
 	UWidgetComponent* WidgetHealthBar;
-
+	
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Default")
 	UStateTreeComponent* StateTree;
