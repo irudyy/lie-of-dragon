@@ -8,8 +8,7 @@ public class lie_of_dragon : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
-
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "StateTreeModule", "GameplayStateTreeModule","UMG" });
 		PrivateDependencyModuleNames.AddRange(new string[] { "EnhancedInput" });
 
 		// Uncomment if you are using Slate UI
