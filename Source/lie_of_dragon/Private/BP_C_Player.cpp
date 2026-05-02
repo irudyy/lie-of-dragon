@@ -611,5 +611,26 @@ void ABP_C_Player::C_UpdPlayerStammina()
 // IVAN UPDATE FOR LAVA===============================
 void ABP_C_Player::LavaDamage_Implementation()
 {
+	if (C_bIsDead) return;
+
 	C_CurrentHealth -= 200.f;
+	C_CurrentHealth = FMath::Clamp(C_CurrentHealth, 0.0, C_MaxHealth); // ======= MAYBEE DELETEEE=====
+
+	if (GEngine)
+	{
+		const FString Message = FString::Printf(TEXT("LAVA DAMAGE! HP: %.0f"), C_CurrentHealth);
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Orange, Message);
+	}
+
+	if (C_CurrentHealth <= 0.0)
+	{
+		C_bIsDead = true;
+		C_bQTEActive = false; // ======= MAYBEE DELETEEE=====
+
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("PLAYER DEAD FROM LAVA"));
+			UE_LOG(LogTemp, Warning, TEXT("PLAYER DEAD FROM LAVA"));
+		}
+	}
 }
