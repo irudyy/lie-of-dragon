@@ -24,7 +24,6 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 class UInputMappingContext;
-class UWidgetComponent;
 class USphereComponent;
 class USkeletalMeshComponent;
 

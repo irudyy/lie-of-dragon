@@ -33,12 +33,19 @@ UE_LOG(LogTemp, Display, TEXT("Player %s has a score of: %d"), *PlayerName, Scor
 #include "InputCoreTypes.h"
 #include "GameFramework/GameSession.h"
 #include "GeometryCollection/GeometryCollectionDebugDrawActor.h"
-#include "Blueprint/UserWidget.h"
+//#include "Blueprint/UserWidget.h"
 #include "TimerManager.h"
+
+#include "Components/CapsuleComponent.h"
+
 
 // Sets default values
 ABP_C_Player::ABP_C_Player()
 {
+	GetCapsuleComponent()->InitCapsuleSize(99.f, 99.0f);
+	
+	
+	
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
@@ -600,3 +607,9 @@ void ABP_C_Player::C_UpdPlayerStammina()
 {
 }
 
+
+// IVAN UPDATE FOR LAVA===============================
+void ABP_C_Player::LavaDamage_Implementation()
+{
+	C_CurrentHealth -= 200.f;
+}

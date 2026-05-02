@@ -282,4 +282,11 @@ public:
 	void C_UpdPlayerHealth();
 	UFUNCTION(BlueprintCallable, Category = "Default")
 	void C_UpdPlayerStammina();
+	
+	
+	
+	// IVAN UPDATE FOR LAVA
+	UFUNCTION(BlueprintNativeEvent)
+	void LavaDamage();
+	virtual void LavaDamage_Implementation();
 };
