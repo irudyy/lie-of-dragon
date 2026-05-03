@@ -391,7 +391,12 @@ void ABP_C_Player::C_HandleQTEInput(E_QTEDirection PressedDirection)
 
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.75f, FColor::Green, TEXT("QTE CORRECT INPUT"));
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			0.75f,
+			FColor::Green,
+			TEXT("QTE CORRECT INPUT")
+		);
 	}
 }
 
