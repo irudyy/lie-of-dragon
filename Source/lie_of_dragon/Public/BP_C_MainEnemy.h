@@ -9,9 +9,6 @@
 #include "Components/WidgetComponent.h"
 
 
-#include "GameFramework/Character.h"
-#include "Components/WidgetComponent.h"
-
 
 
 #include "BP_C_MainEnemy.generated.h"
@@ -26,7 +23,7 @@ class UInputAction;
 class UInputMappingContext;
 class USphereComponent;
 class USkeletalMeshComponent;
-
+class UEnemyHealthWidget;
 	
 
 	
@@ -57,6 +54,16 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	/*
+	 * Widget
+	*/
+	
+	/** Please add a variable description */
+	/*UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Components")
+	UWidgetComponent* WidgetHealthBar;
+	UPROPERTY()
+	class UC_BP_EnemyWidget* EnemyHealthWidgetInstance; // А это будет ссылка на саму логику шкалы
+	*/
 	
 	/*
 	 * Controller
@@ -70,12 +77,12 @@ public:
 	
 	void EnemyMove(const FInputActionValue& ActionValue);
 	
-	/** Please add a variable description */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Default")
-	UWidgetComponent* WidgetHealthBar;
+	
+	
+	
 	
 	/** Please add a variable description */
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Default")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Components")
 	UStateTreeComponent* StateTree;
 
 	/** Please add a variable description */
@@ -83,7 +90,7 @@ public:
 	USphereComponent* QTEZoneTEMP;
 
 	/** Please add a variable description */
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Default")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Components")
 	USkeletalMeshComponent* BatMesh;
 
 	/** Please add a variable description */

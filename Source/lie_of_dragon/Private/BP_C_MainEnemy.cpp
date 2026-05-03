@@ -2,6 +2,8 @@
 
 
 #include "BP_C_MainEnemy.h"
+
+#include "C_BP_EnemyWidget.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
@@ -29,6 +31,8 @@ ABP_C_MainEnemy::ABP_C_MainEnemy()
 	PrimaryActorTick.bCanEverTick = true;
 	GetMesh()->SetRelativeRotation(FRotator {0.f, 0.f, 0.f});
 	StateTree = CreateDefaultSubobject<UStateTreeComponent>(TEXT("StateTree"));
+	/*WidgetHealthBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarComponent"));
+	WidgetHealthBar->SetupAttachment(RootComponent);*/
 }
 
 
@@ -37,6 +41,11 @@ ABP_C_MainEnemy::ABP_C_MainEnemy()
 void ABP_C_MainEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	/*if (WidgetHealthBar)
+	{
+		WidgetHealthBar = Cast<UC_BP_EnemyWidget>(WidgetHealthBar->GetUserWidgetObject());
+	}*/
 }
 
 	
@@ -46,6 +55,12 @@ void ABP_C_MainEnemy::BeginPlay()
 void ABP_C_MainEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	/*if (WidgetHealthBar && WidgetHealthBar->HealthBar)
+	{
+		float Percent = C_CurrentHealth / C_MaxHealth;
+		WidgetHealthBar->HealthBar->SetPercent(Percent);
+	}*/
 }
 
 // Called to bind functionality to input

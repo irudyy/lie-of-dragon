@@ -2,7 +2,12 @@
 
 
 #include "C_BP_pickubleitem.h"
+#include "InputCoreTypes.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "GameFramework/GameSession.h"
 #include "BP_C_Player.h"
+
 
 
 // Sets default values
@@ -45,10 +50,14 @@ void AC_BP_pickubleitem::Tick(float DeltaTime)
 void AC_BP_pickubleitem::CoinOnOverlapBegin(UPrimitiveComponent* OverlappedComp,AActor* OtherActor,UPrimitiveComponent* OtherComp,int32 OtherBodyIndex,bool bFromSweep,const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("IM INSIDE COIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIN"));
-	
 	ABP_C_Player* Player = Cast<ABP_C_Player>(OtherActor);
 	if (!IsValid(Player)) return;
+	OnCoinPickedUp(100);
+	Destroy();
 	
 }
+
+
+
 
 
