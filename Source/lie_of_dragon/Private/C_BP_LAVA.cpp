@@ -3,8 +3,6 @@
 
 #include "C_BP_LAVA.h"
 #include "BP_C_Player.h"
-#include "Kismet/GameplayStatics.h"
-#include "Components/CapsuleComponent.h"
 
 
 
@@ -52,8 +50,8 @@ void AC_BP_LAVA::OnOverlapBegin(UPrimitiveComponent* OverlappedComp,AActor* Othe
 	UE_LOG(LogTemp, Warning, TEXT("IM INSIDE LAVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
 	
 	ABP_C_Player* Player = Cast<ABP_C_Player>(OtherActor);
-	Player->LavaDamage(); 
 	if (!IsValid(Player)) return;
+	Player->LavaDamage(); 
 	
 }
 
