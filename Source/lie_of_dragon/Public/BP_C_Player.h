@@ -4,12 +4,13 @@
 
 class WBP_QTECombat_C;
 
-
+#include "C_WBP_MainUI.h"
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "Blueprint/UserWidget.h"
 #include "BP_C_Player.generated.h"
+
 
 
 
@@ -103,9 +104,6 @@ public:
 		
 	UPROPERTY(EditAnywhere, Category = "Interact")
 	float InteractDebugDuration = 1.0f;
-	
-	UPROPERTY(EditAnywhere, Category = "Stammina")
-	float StamminaProcent = 100.0f;
 	
 	UPROPERTY(EditAnywhere, Category = "Timer")
 	int TickCounter = 0;
@@ -218,6 +216,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
 	float heal=25.f;
 	
+	
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
+	UC_WBP_MainUI* MainUII;
 
 	/*
 	 * Camera

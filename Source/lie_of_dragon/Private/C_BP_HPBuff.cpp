@@ -5,6 +5,7 @@
 #include "BP_C_Player.h"
 #include "InputCoreTypes.h"
 #include "BP_C_Player.h"
+#include "C_WBP_MainUI.h"
 
 
 
@@ -49,9 +50,15 @@ void AC_BP_HPBuff::HPBuffOnOverlapBegin(UPrimitiveComponent* OverlappedComp,AAct
 	UE_LOG(LogTemp, Warning, TEXT("IM INSIDE HP"));
 	ABP_C_Player* Player = Cast<ABP_C_Player>(OtherActor);
 	
+	
 	if (!IsValid(Player)) return;
-	Player->LavaDamage(); 
+	//Player->LavaDamage(); 
 	UE_LOG(LogTemp, Warning, TEXT("IM sended message to player  HP"));
+	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(Player->MyWidgetInstance);
+	
+	Player->C_CurrentHealth += 20;
+	MainUI->UpdateHPFromPlayer(Player->C_CurrentHealth/Player->C_MaxHealth);
+	
 	Destroy();
 	
 }

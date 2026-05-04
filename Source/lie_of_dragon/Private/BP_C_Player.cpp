@@ -79,8 +79,15 @@ ABP_C_Player::ABP_C_Player()
 // Called when the game starts or when spawned
 void ABP_C_Player::BeginPlay()
 {
+	
 	Super::BeginPlay();
 
+	
+	MainUII = Cast<UC_WBP_MainUI>(MyWidgetInstance);
+	
+	
+	
+	
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
 		if (ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
@@ -143,6 +150,42 @@ void ABP_C_Player::Tick(float DeltaTime)
 		TickCounter = 0;
 		PlayerSecond();
 	}
+	
+	
+	
+	// БЛОК ПРОВЕРОК!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	
+	
+	UE_LOG(LogTemp, Warning, TEXT("UpdateHP() called. MainUII=%s, Curr=%f, Max=%f"),
+	IsValid(MainUII) ? TEXT("VALID") : TEXT("NULL"),
+	C_CurrentHealth,
+	C_MaxHealth);
+
+	if (!IsValid(MainUII))
+	{
+		UE_LOG(LogTemp, Error, TEXT("MainUII is invalid"));
+		return;
+	}
+
+	if (C_MaxHealth <= 0.f)
+	{
+		UE_LOG(LogTemp, Error, TEXT("C_MaxHealth <= 0"));
+		return;
+	}
+
+	float HpPercent = FMath::Clamp(C_CurrentHealth / C_MaxHealth, 0.f, 1.f);
+	UE_LOG(LogTemp, Warning, TEXT("HpPercent=%f"), HpPercent);
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }
 //dobavil
 
@@ -212,7 +255,7 @@ void ABP_C_Player::PlayerMove(const FInputActionValue& ActionValue)
 void ABP_C_Player::PlayerStartDash(const FInputActionValue& ActionValue)
 {
 	
-	if (StamminaProcent <= 0)
+	if (C_CurrentStammina <= 0)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	}
@@ -268,26 +311,29 @@ void ABP_C_Player::QTEInputRight(const FInputActionValue& ActionValue)
 
 void ABP_C_Player::PlayerSecond()
 {
-	if (StamminaProcent <= 0)
+	if (C_CurrentStammina <= 0)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	}
-	if (GetCharacterMovement()->MaxWalkSpeed == 1500.0f && StamminaProcent != 0)
+	if (GetCharacterMovement()->MaxWalkSpeed == 1500.0f && C_CurrentStammina != 0)
 	{
-		StamminaProcent = StamminaProcent - 40;
+		C_CurrentStammina = C_CurrentStammina - 40;
 	}
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, TEXT("Second"));
 	}
-	if (StamminaProcent >= 100)
+	if (C_CurrentStammina >= 100)
 	{
 	}
 	else
 	{
-		StamminaProcent = StamminaProcent + 20;
+		C_CurrentStammina = C_CurrentStammina + 20;
 	}
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::SanitizeFloat(StamminaProcent));
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::SanitizeFloat(C_CurrentStammina));
+	
+	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(MyWidgetInstance);
+	MainUI->UpdateStammFromPlayer(C_CurrentStammina/C_MaxStammina);
 }
 
 //dobavil i izmenil

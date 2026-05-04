@@ -43,7 +43,7 @@ void AC_BP_pickubleitem::BeginPlay()
 void AC_BP_pickubleitem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 }
 
 void AC_BP_pickubleitem::CoinOnOverlapBegin(UPrimitiveComponent* OverlappedComp,AActor* OtherActor,UPrimitiveComponent* OtherComp,int32 OtherBodyIndex,bool bFromSweep,const FHitResult& SweepResult)
@@ -56,13 +56,14 @@ void AC_BP_pickubleitem::CoinOnOverlapBegin(UPrimitiveComponent* OverlappedComp,
 		IsValid(Player->MyWidgetInstance) ? *Player->MyWidgetInstance->GetClass()->GetName() : TEXT("nullptr"));
 
 	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(Player->MyWidgetInstance);
-	if (!IsValid(MainUI))
-	{
-		UE_LOG(LogTemp, Error, TEXT("Cast на MainUI не удался"));
-		Destroy();
-		return;
-	}
+	
+	
+	Player->C_CurrentHealth -= 20;
 	MainUI->UpdateScoreFromCoin(100);
+	MainUI->UpdateHPFromPlayer(Player->C_CurrentHealth/Player->C_MaxHealth);
+	
+	Player->C_CurrentStammina -= 20;
+	MainUI->UpdateStammFromPlayer(Player->C_CurrentStammina/Player->C_MaxStammina);
 	Destroy();
 	
 }
