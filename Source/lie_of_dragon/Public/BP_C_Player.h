@@ -129,7 +129,7 @@ public:
 	int32 C_QTECurrentIndex = 0;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="QTE")
-	int32 C_QTESequenceLength = 4;
+	int32 C_QTESequenceLength = 5;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="QTE")
 	double C_QTETimeLimit = 5.0;

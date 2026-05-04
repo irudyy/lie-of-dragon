@@ -38,6 +38,22 @@ UE_LOG(LogTemp, Display, TEXT("Player %s has a score of: %d"), *PlayerName, Scor
 #include "C_WBP_MainUI.h"
 #include "Components/CapsuleComponent.h"
 
+static FString QTEDirectionToString(E_QTEDirection Direction)
+{
+	switch (Direction)
+	{
+	case E_QTEDirection::Up:
+		return TEXT("Up");
+	case E_QTEDirection::Down:
+		return TEXT("Down");
+	case E_QTEDirection::Left:
+		return TEXT("Left");
+	case E_QTEDirection::Right:
+		return TEXT("Right");
+	default:
+		return TEXT("Unknown");
+	}
+}
 
 // Sets default values
 ABP_C_Player::ABP_C_Player()
@@ -277,6 +293,15 @@ void ABP_C_Player::PlayerSecond()
 //dobavil i izmenil
 void ABP_C_Player::C_StartQTERound()
 {
+	if (C_bQTEActive)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Orange, TEXT("QTE START IGNORED: already active"));
+		}
+		return;
+	}
+
 	if (!C_bInsideBatZone)
 	{
 		return;
@@ -288,9 +313,11 @@ void ABP_C_Player::C_StartQTERound()
 		return;
 	}
 
+	GetWorldTimerManager().ClearTimer(C_QTENextRoundTimerHandle);
+
 	if (C_QTESequenceLength <= 0)
 	{
-		C_QTESequenceLength = 4;
+		C_QTESequenceLength = 5;
 	}
 
 	if (C_QTETimeLimit <= 0.0)
@@ -312,19 +339,15 @@ void ABP_C_Player::C_StartQTERound()
 		case 0:
 			C_QTESequence.Add(E_QTEDirection::Up);
 			break;
-
 		case 1:
 			C_QTESequence.Add(E_QTEDirection::Down);
 			break;
-
 		case 2:
 			C_QTESequence.Add(E_QTEDirection::Left);
 			break;
-
 		case 3:
 			C_QTESequence.Add(E_QTEDirection::Right);
 			break;
-
 		default:
 			C_QTESequence.Add(E_QTEDirection::Up);
 			break;
@@ -342,7 +365,25 @@ void ABP_C_Player::C_StartQTERound()
 
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("QTE STARTED"));
+		FString SequenceText;
+
+		for (int32 i = 0; i < C_QTESequence.Num(); i++)
+		{
+			SequenceText += QTEDirectionToString(C_QTESequence[i]);
+
+			if (i < C_QTESequence.Num() - 1)
+			{
+				SequenceText += TEXT(" / ");
+			}
+		}
+
+		const FString Message = FString::Printf(
+			TEXT("QTE STARTED | Num: %d | Sequence: %s"),
+			C_QTESequence.Num(),
+			*SequenceText
+		);
+
+		GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Cyan, Message);
 	}
 }
 
@@ -350,6 +391,15 @@ void ABP_C_Player::C_HandleQTEInput(E_QTEDirection PressedDirection)
 {
 	if (!C_bQTEActive)
 	{
+		if (GEngine)
+		{
+			const FString Message = FString::Printf(
+				TEXT("QTE INPUT IGNORED | Pressed: %s | QTE not active"),
+				*QTEDirectionToString(PressedDirection)
+			);
+
+			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Silver, Message);
+		}
 		return;
 	}
 
@@ -373,13 +423,34 @@ void ABP_C_Player::C_HandleQTEInput(E_QTEDirection PressedDirection)
 
 	const E_QTEDirection ExpectedDirection = C_QTESequence[C_QTECurrentIndex];
 
+	if (GEngine)
+	{
+		const FString Message = FString::Printf(
+			TEXT("QTE INPUT | Pressed: %s | Expected: %s | Index: %d / %d"),
+			*QTEDirectionToString(PressedDirection),
+			*QTEDirectionToString(ExpectedDirection),
+			C_QTECurrentIndex,
+			C_QTESequence.Num()
+		);
+
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, Message);
+	}
+
 	if (PressedDirection != ExpectedDirection)
 	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Red, TEXT("WRONG QTE INPUT"));
+		}
+
 		C_FaliRound();
 		return;
 	}
 
 	C_QTECurrentIndex++;
+
+	// Новое полное время на следующую стрелку.
+	C_QTERemainingTime = C_QTETimeLimit;
 
 	if (C_QTECurrentIndex >= C_QTESequence.Num())
 	{
@@ -402,8 +473,19 @@ void ABP_C_Player::C_SuccessRound()
 		return;
 	}
 
-	C_bQTEActive = false;
+	GetWorldTimerManager().ClearTimer(C_QTENextRoundTimerHandle);
 
+	C_bQTEActive = false;
+	C_QTERemainingTime = 0.0;
+	C_QTECurrentIndex = 0;
+	C_QTESequence.Empty();
+
+	if (QTEWidgetInstance)
+	{
+		QTEWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	BP_QTE_SetVisible(false);
 	BP_QTE_ShowResult(true);
 
 	if (GEngine)
@@ -417,6 +499,17 @@ void ABP_C_Player::C_SuccessRound()
 			0.0,
 			C_CurrentBatEnemy->C_CurrentHealth - C_CurrentBatEnemy->C_DamagePerSuccess
 		);
+
+		if (GEngine)
+		{
+			const FString EnemyHPMessage = FString::Printf(
+				TEXT("ENEMY HP: %.0f / %.0f"),
+				C_CurrentBatEnemy->C_CurrentHealth,
+				C_CurrentBatEnemy->C_MaxHealth
+			);
+
+			GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, EnemyHPMessage);
+		}
 
 		if (C_CurrentBatEnemy->C_CurrentHealth <= 0.0)
 		{
@@ -445,7 +538,7 @@ void ABP_C_Player::C_SuccessRound()
 			C_QTENextRoundTimerHandle,
 			this,
 			&ABP_C_Player::C_StartQTERound,
-			0.35f,
+			1.0f,
 			false
 		);
 	}
@@ -458,8 +551,19 @@ void ABP_C_Player::C_FaliRound()
 		return;
 	}
 
-	C_bQTEActive = false;
+	GetWorldTimerManager().ClearTimer(C_QTENextRoundTimerHandle);
 
+	C_bQTEActive = false;
+	C_QTERemainingTime = 0.0;
+	C_QTECurrentIndex = 0;
+	C_QTESequence.Empty();
+
+	if (QTEWidgetInstance)
+	{
+		QTEWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	BP_QTE_SetVisible(false);
 	BP_QTE_ShowResult(false);
 
 	if (GEngine)
@@ -471,7 +575,7 @@ void ABP_C_Player::C_FaliRound()
 
 	const float RestartDelay = IsValid(C_CurrentBatEnemy)
 		? static_cast<float>(C_CurrentBatEnemy->C_AttackOnFailDelay)
-		: 0.35f;
+		: 1.0f;
 
 	if (C_bInsideBatZone && IsValid(C_CurrentBatEnemy) && !C_bIsDead)
 	{
@@ -479,7 +583,7 @@ void ABP_C_Player::C_FaliRound()
 			C_QTENextRoundTimerHandle,
 			this,
 			&ABP_C_Player::C_StartQTERound,
-			FMath::Max(RestartDelay, 0.2f),
+			FMath::Max(RestartDelay, 1.0f),
 			false
 		);
 	}
@@ -500,10 +604,22 @@ void ABP_C_Player::C_EnterBatZone(ABP_C_MainEnemy* BatEnemy)
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Cyan, TEXT("ENTER BAT ZONE"));
 	}
 
-	if (C_bAutoStartQTEOnEnterZone && !C_bQTEActive)
+	if (!C_bAutoStartQTEOnEnterZone)
 	{
-		C_StartQTERound();
+		return;
 	}
+
+	if (C_bQTEActive)
+	{
+		return;
+	}
+
+	if (GetWorldTimerManager().IsTimerActive(C_QTENextRoundTimerHandle))
+	{
+		return;
+	}
+
+	C_StartQTERound();
 }
 
 void ABP_C_Player::C_ExitBatZone(ABP_C_MainEnemy* BatEnemy)
