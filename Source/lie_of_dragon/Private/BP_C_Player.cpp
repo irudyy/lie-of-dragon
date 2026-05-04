@@ -35,7 +35,7 @@ UE_LOG(LogTemp, Display, TEXT("Player %s has a score of: %d"), *PlayerName, Scor
 #include "GeometryCollection/GeometryCollectionDebugDrawActor.h"
 //#include "Blueprint/UserWidget.h"
 #include "TimerManager.h"
-
+#include "C_WBP_MainUI.h"
 #include "Components/CapsuleComponent.h"
 
 
@@ -80,7 +80,7 @@ void ABP_C_Player::BeginPlay()
 	{
 		APlayerController* PC = GetWorld()->GetFirstPlayerController();
 
-		MyWidgetInstance = CreateWidget<UUserWidget>(PC, MyWidgetClass);
+		MyWidgetInstance = CreateWidget<UC_WBP_MainUI>(PC, MyWidgetClass);
 
 		if (MyWidgetInstance)
 		{

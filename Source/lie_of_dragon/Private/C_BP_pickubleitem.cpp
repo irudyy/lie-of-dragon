@@ -3,10 +3,9 @@
 
 #include "C_BP_pickubleitem.h"
 #include "InputCoreTypes.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
-#include "GameFramework/GameSession.h"
 #include "BP_C_Player.h"
+#include "C_WBP_MainUI.h"
+
 
 
 
@@ -52,7 +51,18 @@ void AC_BP_pickubleitem::CoinOnOverlapBegin(UPrimitiveComponent* OverlappedComp,
 	UE_LOG(LogTemp, Warning, TEXT("IM INSIDE COIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIN"));
 	ABP_C_Player* Player = Cast<ABP_C_Player>(OtherActor);
 	if (!IsValid(Player)) return;
-	OnCoinPickedUp(100);
+
+	UE_LOG(LogTemp, Warning, TEXT("Widget class: %s"), 
+		IsValid(Player->MyWidgetInstance) ? *Player->MyWidgetInstance->GetClass()->GetName() : TEXT("nullptr"));
+
+	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(Player->MyWidgetInstance);
+	if (!IsValid(MainUI))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Cast на MainUI не удался"));
+		Destroy();
+		return;
+	}
+	MainUI->UpdateScoreFromCoin(100);
 	Destroy();
 	
 }
