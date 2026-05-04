@@ -2,8 +2,10 @@
 
 #pragma once
 
-class WBP_QTECombat_C;
 
+
+
+#include "Animation/AnimMontage.h"
 #include "C_WBP_MainUI.h"
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
@@ -85,6 +87,7 @@ public:
 	
 	void PlayerJump();
 	void PlayerMove(const FInputActionValue& ActionValue);
+	void PlayerStopMove(const FInputActionValue& ActionValue);
 	void PlayerStartDash(const FInputActionValue& ActionValue);
 	void PlayerEndDash(const FInputActionValue& ActionValue);
 	
@@ -95,7 +98,7 @@ public:
 	void QTEInputRight(const FInputActionValue& ActionValue);
 	//dobavil
 	
-	//void PlayerLook(const FInputActionValue& ActionValue);----------------------
+	void PlayerLook(const FInputActionValue& ActionValue);
 	void PlayerSecond();
 	
 	
@@ -184,18 +187,23 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
 	double C_DeathRestartDelay;
 
-	/** Please add a variable description */
+	
+	/*
+	 Please add a variable description 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
 	bool C_Animation_Run_Stay;
 
-	/** Please add a variable description */
+	/* Please add a variable description 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
 	bool C_Animation_Attack;
 
-	/** Please add a variable description */
+	/* Please add a variable description 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
 	double C_multiplication;
-
+*/
+	
+	
+	
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
 	bool C_Is_Dash_On_Player;
@@ -228,8 +236,21 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	USpringArmComponent* SpringArm;
+
 	
 	
+	///-------------------------------------------
+	///Animations
+	///------------------------------------------
+
+	UFUNCTION(BlueprintCallable, Category = "Default")
+	void C_UpdPlayerAnimation(int numAnim);
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	TArray<UAnimSequence*> Animations; // вместо UAnimMontage*
+	
+	UPROPERTY()
+	int32 CurrentAnimIndex = -1; // -1 = ничего не играет
 	
 	///-------------------------------------------
 	///UFunctions

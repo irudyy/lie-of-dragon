@@ -23,7 +23,8 @@ class UInputAction;
 class UInputMappingContext;
 class USphereComponent;
 class USkeletalMeshComponent;
-class UEnemyHealthWidget;
+class UC_BP_EnemyWidget;
+class UUserWidget;
 	
 
 	
@@ -53,17 +54,6 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	/*
-	 * Widget
-	*/
-	
-	/** Please add a variable description */
-	/*UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Components")
-	UWidgetComponent* WidgetHealthBar;
-	UPROPERTY()
-	class UC_BP_EnemyWidget* EnemyHealthWidgetInstance; // А это будет ссылка на саму логику шкалы
-	*/
 	
 	/*
 	 * Controller
@@ -74,13 +64,32 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* MoveAction;
 	
-	
 	void EnemyMove(const FInputActionValue& ActionValue);
 	
-	
-	
-	
-	
+	/*
+	 * Widget
+	 */
+/*
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+	UWidgetComponent* WidgetHealthBar = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
+	TSubclassOf<UUserWidget> MyEnemyWidgetClass;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> MyEnemyWidgetInstance = nullptr;
+
+	UPROPERTY(Transient)
+	UC_BP_EnemyWidget* EnemyHealthBarWidget = nullptr;
+*/
+/*	UFUNCTION(BlueprintCallable, Category="UI")
+	void UpdateEnemyHealthWidget();*/
+
+
+	/*
+	 * Components
+	 */
+
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Components")
 	UStateTreeComponent* StateTree;
@@ -92,6 +101,11 @@ public:
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Components")
 	USkeletalMeshComponent* BatMesh;
+
+
+	/*
+	 * Health / Combat Variables
+	 */
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Variables")
@@ -113,19 +127,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Variables")
 	double C_AttackOnFailDelay = 0.2;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
-	TSubclassOf<UUserWidget> MyEnemyWidgetClass; // Сюда в редакторе выберете нужный виджет
-
-	UPROPERTY()
-	TObjectPtr<UUserWidget> MyEnemyWidgetInstance; // Ссылка на созданный экземпляр
-
-
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
-	//UC_BP_EnemyWidget* EnemyHealthBar ;
-
-
-
 
 };
-
 
