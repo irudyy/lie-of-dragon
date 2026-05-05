@@ -160,7 +160,10 @@ public:
 	UPROPERTY()
 	TObjectPtr<UUserWidget> MyWidgetInstance; // Ссылка на созданный экземпляр
 	
-	
+	//Death or Win Timer (DoW Timer)
+	FTimerHandle DoWTimerHandle;
+	//1 second timer
+	FTimerHandle SecTimerHandle;
 	
 	//dobavil
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|QTE")

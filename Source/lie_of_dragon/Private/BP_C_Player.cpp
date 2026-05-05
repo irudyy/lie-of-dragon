@@ -31,6 +31,7 @@ UE_LOG(LogTemp, Display, TEXT("Player %s has a score of: %d"), *PlayerName, Scor
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "InputCoreTypes.h"
+#include "Kismet/GameplayStatics.h" // уже есть у тебя
 #include "GameFramework/GameSession.h"
 #include "GeometryCollection/GeometryCollectionDebugDrawActor.h"
 //#include "Blueprint/UserWidget.h"
@@ -82,6 +83,11 @@ void ABP_C_Player::BeginPlay()
 	
 	Super::BeginPlay();
 
+	GetWorldTimerManager().SetTimer(SecTimerHandle, [this]()
+			{
+				UE_LOG(LogTemp, Error, TEXT("Second"));
+				PlayerSecond();
+			}, 1.0f, false); // false = не зацикливать
 	
 	MainUII = Cast<UC_WBP_MainUI>(MyWidgetInstance);
 	
@@ -133,6 +139,19 @@ void ABP_C_Player::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	
+	//respawn whole Scene
+	if (C_CurrentHealth <= 0)
+	{
+		// Показать виджет "Игра окончена" (если есть)
+		// ...
+
+		// Через 5 секунд открыть меню
+		GetWorldTimerManager().SetTimer(DoWTimerHandle, [this]()
+		{
+			UGameplayStatics::OpenLevel(this, FName("MenuLevel"));
+		}, 5.0f, false); // false = не зацикливать
+	}
+	
 	if (C_bQTEActive)
 	{
 		C_QTERemainingTime -= DeltaTime;
@@ -144,15 +163,7 @@ void ABP_C_Player::Tick(float DeltaTime)
 		}
 		
 	}
-
-	TickCounter += 1;
-
-	if (TickCounter == 50)
-	{
-		
-		TickCounter = 0;
-		PlayerSecond();
-	}
+	
 	
 	
 	
@@ -322,6 +333,12 @@ void ABP_C_Player::PlayerLook(const FInputActionValue& ActionValue)
 
 void ABP_C_Player::PlayerSecond()
 {
+	GetWorldTimerManager().SetTimer(SecTimerHandle, [this]()
+			{
+				UE_LOG(LogTemp, Error, TEXT("Second"));
+				PlayerSecond();
+			}, 1.0f, false); 
+	
 	if (C_CurrentStammina <= 0)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
@@ -346,6 +363,9 @@ void ABP_C_Player::PlayerSecond()
 	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(MyWidgetInstance);
 	MainUI->UpdateStammFromPlayer(C_CurrentStammina/C_MaxStammina);
 	MainUI->UpdateHPFromPlayer(C_CurrentHealth/C_MaxHealth);
+	
+	
+	
 }
 
 //dobavil i izmenil
