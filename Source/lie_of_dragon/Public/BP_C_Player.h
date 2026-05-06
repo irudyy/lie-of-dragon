@@ -298,7 +298,6 @@ public:
 	
 	
 	
-	// IVAN UPDATE FOR LAVA
 	UFUNCTION(BlueprintNativeEvent)
 	void LavaDamage();
 	virtual void LavaDamage_Implementation();
