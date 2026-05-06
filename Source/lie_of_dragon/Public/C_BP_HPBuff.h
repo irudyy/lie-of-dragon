@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/SphereComponent.h"
-
 #include "C_BP_HPBuff.generated.h"
 
 UCLASS()
@@ -31,6 +30,4 @@ public:
 	UFUNCTION()
 	void HPBuffOnOverlapBegin(UPrimitiveComponent* OverlappedComp,AActor* OtherActor,UPrimitiveComponent* OtherComp,int32 OtherBodyIndex,bool bFromSweep,const FHitResult& SweepResult);
 
-	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Components")
-	//USkeletalMeshComponent* BatMesh;
 };

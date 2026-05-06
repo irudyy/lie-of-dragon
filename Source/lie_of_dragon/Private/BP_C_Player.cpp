@@ -1,28 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
-
-/*
-// Basic message
-UE_LOG(LogTemp, Warning, TEXT("Hello from C++!"));
-
-// Message with variables (using FString::Printf style formatting)
-FString PlayerName = "John";
-int32 Score = 100;
-UE_LOG(LogTemp, Display, TEXT("Player %s has a score of: %d"), *PlayerName, Score);
-
-
-
-
-
-
-
-
-
-
-
-*/
-
 #include "BP_C_Player.h"
 #include "BP_C_MainEnemy.h"
 #include "EnhancedInputComponent.h"
@@ -31,40 +8,14 @@ UE_LOG(LogTemp, Display, TEXT("Player %s has a score of: %d"), *PlayerName, Scor
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "InputCoreTypes.h"
-#include "Kismet/GameplayStatics.h" // уже есть у тебя
-#include "GameFramework/GameSession.h"
-#include "GeometryCollection/GeometryCollectionDebugDrawActor.h"
-//#include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h" 
 #include "TimerManager.h"
 #include "C_WBP_MainUI.h"
 #include "Components/CapsuleComponent.h"
-#include "Kismet/GameplayStatics.h"
 
-static FString QTEDirectionToString(E_QTEDirection Direction)
-{
-	switch (Direction)
-	{
-	case E_QTEDirection::Up:
-		return TEXT("Up");
-	case E_QTEDirection::Down:
-		return TEXT("Down");
-	case E_QTEDirection::Left:
-		return TEXT("Left");
-	case E_QTEDirection::Right:
-		return TEXT("Right");
-	default:
-		return TEXT("Unknown");
-	}
-}
-
-// Sets default values
 ABP_C_Player::ABP_C_Player()
 {
 	GetCapsuleComponent()->InitCapsuleSize(99.f, 99.0f);
-	
-	
-	
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
@@ -72,26 +23,18 @@ ABP_C_Player::ABP_C_Player()
 	
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	PlayerCamera->SetupAttachment(SpringArm);
-	
-	
-	
-
 }
 
-// Called when the game starts or when spawned
 void ABP_C_Player::BeginPlay()
 {
-	
 	Super::BeginPlay();
 
 	GetWorldTimerManager().SetTimer(SecTimerHandle, [this]()
 			{
-				UE_LOG(LogTemp, Error, TEXT("Second"));
 				PlayerSecond();
-			}, 1.0f, false); // false = не зацикливать
+			}, 1.0f, false);
 	
 	MainUII = Cast<UC_WBP_MainUI>(MyWidgetInstance);
-	
 	
 	C_UpdPlayerAnimation(1, true);
 	
@@ -109,9 +52,7 @@ void ABP_C_Player::BeginPlay()
 	if (MyWidgetClass)
 	{
 		APlayerController* PC = GetWorld()->GetFirstPlayerController();
-
 		MyWidgetInstance = CreateWidget<UC_WBP_MainUI>(PC, MyWidgetClass);
-
 		if (MyWidgetInstance)
 		{
 			MyWidgetInstance->AddToViewport();
@@ -121,9 +62,7 @@ void ABP_C_Player::BeginPlay()
 	if (QTEWidgetClass)
 	{
 		APlayerController* PC = GetWorld()->GetFirstPlayerController();
-
 		QTEWidgetInstance = CreateWidget<UUserWidget>(PC, QTEWidgetClass);
-
 		if (QTEWidgetInstance)
 		{
 			QTEWidgetInstance->AddToViewport();
@@ -132,141 +71,61 @@ void ABP_C_Player::BeginPlay()
 	}
 }
 
-// Called every frame
-
-//dobavil
 void ABP_C_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	
 	if (C_CurrentHealth > C_MaxHealth)
 	{
 		C_CurrentHealth = C_MaxHealth;
 	}
 	
-	//respawn whole Scene
-	
-	
 	if (C_bQTEActive)
 	{
 		C_QTERemainingTime -= DeltaTime;
-
 		if (C_QTERemainingTime <= 0.0)
 		{
 			C_QTERemainingTime = 0.0;
 			C_FaliRound();
 		}
-		
 	}
-	
-	
-	
-	
-	// БЛОК ПРОВЕРОК!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	
-	/*
-	UE_LOG(LogTemp, Warning, TEXT("UpdateHP() called. MainUII=%s, Curr=%f, Max=%f"),
-	IsValid(MainUII) ? TEXT("VALID") : TEXT("NULL"),
-	C_CurrentHealth,
-	C_MaxHealth);
-
-	if (!IsValid(MainUII))
-	{
-		UE_LOG(LogTemp, Error, TEXT("MainUII is invalid"));
-		return;
-	}
-
-	if (C_MaxHealth <= 0.f)
-	{
-		UE_LOG(LogTemp, Error, TEXT("C_MaxHealth <= 0"));
-		return;
-	}
-
-	float HpPercent = FMath::Clamp(C_CurrentHealth / C_MaxHealth, 0.f, 1.f);
-	UE_LOG(LogTemp, Warning, TEXT("HpPercent=%f"), HpPercent);
-
-	
-	*/
-	
-	
-	
-	
-	
-	
-	
-	
 }
-//dobavil
 
 // Called to bind functionality to input
 void ABP_C_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 	if 	(UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent -> BindAction(JumpAction, ETriggerEvent::Triggered, this, &ABP_C_Player::PlayerJump);
 		EnhancedInputComponent -> BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABP_C_Player::PlayerMove);
 		EnhancedInputComponent -> BindAction(MoveAction, ETriggerEvent::Completed, this, &ABP_C_Player::PlayerStopMove);
-		//EnhancedInputComponent -> BindAction(DashAction, ETriggerEvent::Triggered, this, &ABP_C_Player::PlayerDash);
 		EnhancedInputComponent -> BindAction(LookAction, ETriggerEvent::Triggered, this, &ABP_C_Player::PlayerLook);
-		
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Started, this, &ABP_C_Player::PlayerStartDash);
-		//EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Canceled, this, &ABP_C_Player::PlayerStopDash);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Completed, this, &ABP_C_Player::PlayerEndDash);
 		
-		if (PauseAction)
-		{
-			EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Started, this, &ABP_C_Player::PlayerPause);
-		}
-		
-		//dobavil
-		if (QTEUpAction)
-		{
-			EnhancedInputComponent->BindAction(QTEUpAction, ETriggerEvent::Started, this, &ABP_C_Player::QTEInputUp);
-		}
-
-		if (QTEDownAction)
-		{
-			EnhancedInputComponent->BindAction(QTEDownAction, ETriggerEvent::Started, this, &ABP_C_Player::QTEInputDown);
-		}
-
-		if (QTELeftAction)
-		{
-			EnhancedInputComponent->BindAction(QTELeftAction, ETriggerEvent::Started, this, &ABP_C_Player::QTEInputLeft);
-		}
-
-		if (QTERightAction)
-		{
-			EnhancedInputComponent->BindAction(QTERightAction, ETriggerEvent::Started, this, &ABP_C_Player::QTEInputRight);
-		}
-		//dobavil
+		if (PauseAction)	EnhancedInputComponent->BindAction(PauseAction, 	ETriggerEvent::Started, this, &ABP_C_Player::PlayerPause);
+		if (QTEUpAction)	EnhancedInputComponent->BindAction(QTEUpAction,		ETriggerEvent::Started, this, &ABP_C_Player::QTEInputUp);
+		if (QTEDownAction)	EnhancedInputComponent->BindAction(QTEDownAction, 	ETriggerEvent::Started, this, &ABP_C_Player::QTEInputDown);
+		if (QTELeftAction)	EnhancedInputComponent->BindAction(QTELeftAction, 	ETriggerEvent::Started, this, &ABP_C_Player::QTEInputLeft);
+		if (QTERightAction)	EnhancedInputComponent->BindAction(QTERightAction, 	ETriggerEvent::Started, this, &ABP_C_Player::QTEInputRight);
 	}
-	
 }
 
 void ABP_C_Player::PlayerPause()
 {
 	APlayerController* PC = Cast<APlayerController>(GetController());
+	
 	if (!PC) PC = UGameplayStatics::GetPlayerController(this, 0);
 	if (!PC) return;
-
+	
 	const bool bNewPaused = !UGameplayStatics::IsGamePaused(this);
 	UGameplayStatics::SetGamePaused(this, bNewPaused);
 
 	if (bNewPaused)
 	{
-		// Создаём виджет один раз и переиспользуем
-		if (!PauseMenuInstance && PauseMenuClass)
-		{
-			PauseMenuInstance = CreateWidget<UUserWidget>(PC, PauseMenuClass);
-		}
-		if (PauseMenuInstance && !PauseMenuInstance->IsInViewport())
-		{
-			PauseMenuInstance->AddToViewport(100); // высокий ZOrder, чтобы поверх HUD
-		}
-
+		if (!PauseMenuInstance && PauseMenuClass)	PauseMenuInstance = CreateWidget<UUserWidget>(PC, PauseMenuClass);
+		if (PauseMenuInstance && !PauseMenuInstance->IsInViewport())	PauseMenuInstance->AddToViewport(100); 
+		
 		PC->SetShowMouseCursor(true);
 		FInputModeGameAndUI InputMode;
 		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
@@ -274,13 +133,13 @@ void ABP_C_Player::PlayerPause()
 		if (PauseMenuInstance) InputMode.SetWidgetToFocus(PauseMenuInstance->TakeWidget());
 		PC->SetInputMode(InputMode);
 	}
+	
 	else
 	{
 		if (PauseMenuInstance && PauseMenuInstance->IsInViewport())
 		{
 			PauseMenuInstance->RemoveFromParent();
 		}
-
 		PC->SetShowMouseCursor(false);
 		PC->SetInputMode(FInputModeGameOnly());
 	}
@@ -291,21 +150,19 @@ void ABP_C_Player::PlayerJump()
 	Jump();
 }
 
-//izmenil
 void ABP_C_Player::PlayerMove(const FInputActionValue& ActionValue)
 {
-	
-
 	FVector2D ActionVector = ActionValue.Get<FVector2D>();
+	
 	float Angle = FMath::RadiansToDegrees(FMath::Atan2(ActionVector.X, ActionVector.Y));
 
 	GetMesh()->SetRelativeRotation(FRotator(0.f, Angle-90.f, 0.f));
 	
-	
 	AddMovementInput(GetActorForwardVector(), ActionVector.Y);
+	
 	AddMovementInput(GetActorRightVector(), ActionVector.X);
+	
 	C_UpdPlayerAnimation(2, true);
-	// GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, TEXT("MOVING!"));
 }
 
 void ABP_C_Player::PlayerStopMove(const FInputActionValue& ActionValue)
@@ -313,11 +170,8 @@ void ABP_C_Player::PlayerStopMove(const FInputActionValue& ActionValue)
 	C_UpdPlayerAnimation(1, false);
 }
 
-//izmenil
-
 void ABP_C_Player::PlayerStartDash(const FInputActionValue& ActionValue)
 {
-	
 	if (C_CurrentStammina <= 0)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 400.0f;
@@ -328,42 +182,29 @@ void ABP_C_Player::PlayerStartDash(const FInputActionValue& ActionValue)
 		GetCharacterMovement()->MaxWalkSpeed = 800.0f;
 		C_UpdPlayerAnimation(5, true);
 	}
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, TEXT("SPRINT ON"));
-	}
 }
+
 void ABP_C_Player::PlayerEndDash(const FInputActionValue& ActionValue)
 {
 	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("SPRINT OFF"));
-	}
 }
 
-//dobavil
 void ABP_C_Player::QTEInputUp(const FInputActionValue& ActionValue)
 {
 	C_HandleQTEInput(E_QTEDirection::Up);
 }
-
 void ABP_C_Player::QTEInputDown(const FInputActionValue& ActionValue)
 {
 	C_HandleQTEInput(E_QTEDirection::Down);
 }
-
 void ABP_C_Player::QTEInputLeft(const FInputActionValue& ActionValue)
 {
 	C_HandleQTEInput(E_QTEDirection::Left);
 }
-
 void ABP_C_Player::QTEInputRight(const FInputActionValue& ActionValue)
 {
 	C_HandleQTEInput(E_QTEDirection::Right);
 }
-//dobavil
-
 
 void ABP_C_Player::PlayerLook(const FInputActionValue& ActionValue)
 {
@@ -372,68 +213,53 @@ void ABP_C_Player::PlayerLook(const FInputActionValue& ActionValue)
 	AddControllerPitchInput(ActionRotation.Y);
 }
 
-
 void ABP_C_Player::PlayerSecond()
 {
-	// Сначала проверяем живы ли мы вообще
 	if (!IsValid(this) || playerIsDead) return;
-
+	
 	if (C_CurrentHealth <= 0 && playerIsDead == false)
 	{
 		playerIsDead = true;
-
-		// Останавливаем ВСЕ таймеры сразу
 		GetWorldTimerManager().ClearTimer(SecTimerHandle);
+		
 		GetWorldTimerManager().ClearTimer(EnemyAnimationDelay);
+		
 		GetWorldTimerManager().ClearTimer(C_QTENextRoundTimerHandle);
-
-		//UGameplayStatics::SetGamePaused(GetWorld(), true);
-
+		
 		FTimerDelegate TimerDel;
 		TimerDel.BindLambda([this]()
 		{
-			//UGameplayStatics::SetGamePaused(GetWorld(), false);
 			UGameplayStatics::OpenLevel(this, FName("MenuLevel"));
 		});
 		GetWorldTimerManager().SetTimer(DoWTimerHandle, TimerDel, 5.0f, false);
+		
 		GetWorldTimerManager().UnPauseTimer(DoWTimerHandle);
 
-		return; // ← выходим, не перезапускаем таймер
+		return;
 	}
 
-	// Остальная логика...
-	if (C_CurrentStammina <= 0)
-		GetCharacterMovement()->MaxWalkSpeed = 400.0f;
-    
-	if (GetCharacterMovement()->MaxWalkSpeed == 800.0f && C_CurrentStammina != 0)
-		C_CurrentStammina = C_CurrentStammina - 40;
-
-	if (C_CurrentStammina < 100)
-		C_CurrentStammina = C_CurrentStammina + 20;
-
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::SanitizeFloat(C_CurrentStammina));
+	if (C_CurrentStammina <= 0)		GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+	if (GetCharacterMovement()->MaxWalkSpeed == 800.0f && C_CurrentStammina != 0)		C_CurrentStammina = C_CurrentStammina - 40;
+	if (C_CurrentStammina < 100)	C_CurrentStammina = C_CurrentStammina + 20;
 
 	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(MyWidgetInstance);
+	
 	if (!IsValid(MainUI)) return;
+	
 	MainUI->UpdateStammFromPlayer(C_CurrentStammina / C_MaxStammina);
+	
 	MainUI->UpdateHPFromPlayer(C_CurrentHealth / C_MaxHealth);
 
-	// Перезапускаем таймер только в самом конце
 	GetWorldTimerManager().SetTimer(SecTimerHandle, [this]()
 	{
 		PlayerSecond();
 	}, 1.0f, false);
 }
 
-//dobavil i izmenil
 void ABP_C_Player::C_StartQTERound()
 {
 	if (C_bQTEActive)
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Orange, TEXT("QTE START IGNORED: already active"));
-		}
 		return;
 	}
 
@@ -449,7 +275,7 @@ void ABP_C_Player::C_StartQTERound()
 	}
 
 	GetWorldTimerManager().ClearTimer(C_QTENextRoundTimerHandle);
-
+	
 	if (C_QTESequenceLength <= 0)
 	{
 		C_QTESequenceLength = 5;
@@ -461,8 +287,11 @@ void ABP_C_Player::C_StartQTERound()
 	}
 
 	C_QTESequence.Empty();
+	
 	C_QTECurrentIndex = 0;
+	
 	C_QTERemainingTime = C_QTETimeLimit;
+	
 	C_bQTEActive = true;
 
 	for (int32 i = 0; i < C_QTESequenceLength; i++)
@@ -493,48 +322,17 @@ void ABP_C_Player::C_StartQTERound()
 	{
 		QTEWidgetInstance->SetVisibility(ESlateVisibility::Visible);
 	}
-
 	BP_QTE_SetVisible(true);
+	
 	BP_QTE_SetupSequence(C_QTESequence);
+	
 	BP_QTE_HighlightArrow(C_QTECurrentIndex);
-
-	if (GEngine)
-	{
-		FString SequenceText;
-
-		for (int32 i = 0; i < C_QTESequence.Num(); i++)
-		{
-			SequenceText += QTEDirectionToString(C_QTESequence[i]);
-
-			if (i < C_QTESequence.Num() - 1)
-			{
-				SequenceText += TEXT(" / ");
-			}
-		}
-
-		const FString Message = FString::Printf(
-			TEXT("QTE STARTED | Num: %d | Sequence: %s"),
-			C_QTESequence.Num(),
-			*SequenceText
-		);
-
-		GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Cyan, Message);
-	}
 }
 
 void ABP_C_Player::C_HandleQTEInput(E_QTEDirection PressedDirection)
 {
 	if (!C_bQTEActive)
 	{
-		if (GEngine)
-		{
-			const FString Message = FString::Printf(
-				TEXT("QTE INPUT IGNORED | Pressed: %s | QTE not active"),
-				*QTEDirectionToString(PressedDirection)
-			);
-
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Silver, Message);
-		}
 		return;
 	}
 
@@ -558,58 +356,29 @@ void ABP_C_Player::C_HandleQTEInput(E_QTEDirection PressedDirection)
 
 	const E_QTEDirection ExpectedDirection = C_QTESequence[C_QTECurrentIndex];
 
-	if (GEngine)
-	{
-		const FString Message = FString::Printf(
-			TEXT("QTE INPUT | Pressed: %s | Expected: %s | Index: %d / %d"),
-			*QTEDirectionToString(PressedDirection),
-			*QTEDirectionToString(ExpectedDirection),
-			C_QTECurrentIndex,
-			C_QTESequence.Num()
-		);
-
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, Message);
-	}
-
 	if (PressedDirection != ExpectedDirection)
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Red, TEXT("WRONG QTE INPUT"));
-		}
-
 		C_FaliRound();
 		return;
 	}
-
 	C_QTECurrentIndex++;
-
 	
-
 	if (C_QTECurrentIndex >= C_QTESequence.Num())
 	{
 		C_SuccessRound();
 		return;
 	}
-	// Новое полное время на следующую стрелку.
 	C_QTERemainingTime = C_QTETimeLimit;
 	
 	BP_QTE_HighlightArrow(C_QTECurrentIndex);
-
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.75f, FColor::Green, TEXT("QTE CORRECT INPUT"));
-	}
 }
 
 void ABP_C_Player::C_SuccessRound()
 {
-    if (GEngine)
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Purple, TEXT("C_SUCCESSROUND ENTERED"));
-    }
 	ABP_C_MainEnemy* enemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
+	
 	if (!IsValid(enemy)) return;
+	
 	enemy->C_UpdEnemyAnimation(3);
 	
 	GetWorldTimerManager().SetTimer(EnemyAnimationDelay, [this]()
@@ -618,96 +387,67 @@ void ABP_C_Player::C_SuccessRound()
 			if (!IsValid(eenemy)) return;
 			eenemy->C_UpdEnemyAnimation(1);
 
-		},0.76f, false); // false = не зацикливать
-	
+		},0.76f, false);
 	
 	C_UpdPlayerAnimation(3,false );
+	
 	GetWorldTimerManager().SetTimer(DefaultAnimationDelay, [this]()
 			{
 			C_UpdPlayerAnimation(1,false );
-			},1.0f, false); // false = не зацикливать
-    UE_LOG(LogTemp, Warning, TEXT("C_SUCCESSROUND ENTERED"));
-
-    float baseScoreFromSuccesRound = 10.f;
-
+			},1.0f, false);
+	
     if (!C_bQTEActive)
     {
         return;
     }
-
+	
     GetWorldTimerManager().ClearTimer(C_QTENextRoundTimerHandle);
-
+	
     UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(MyWidgetInstance);
+	
     if (MainUI)
     {
-        MainUI->UpdateScoreFromCoin(baseScoreFromSuccesRound * C_QTERemainingTime);
+	    float baseScoreFromSuccesRound = 10.f;
+	    MainUI->UpdateScoreFromCoin(baseScoreFromSuccesRound * C_QTERemainingTime);
     }
-
+	
     C_bQTEActive = false;
+	
     C_QTERemainingTime = 0.0;
+	
     C_QTECurrentIndex = 0;
+	
     C_QTESequence.Empty();
-
+	
     if (QTEWidgetInstance)
     {
         QTEWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
     }
-
     BP_QTE_SetVisible(false);
+	
     BP_QTE_ShowResult(true);
-
-    if (GEngine)
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, TEXT("QTE SUCCESS"));
-    }
-
+	
     if (IsValid(C_CurrentBatEnemy))
     {
         C_CurrentBatEnemy->C_CurrentHealth = FMath::Max(
             0.0,
             C_CurrentBatEnemy->C_CurrentHealth - C_CurrentBatEnemy->C_DamagePerSuccess
         );
-    //	C_CurrentBatEnemy->UpdateEnemyHealthWidget();
-
-        if (GEngine)
-        {
-            const FString EnemyHPMessage = FString::Printf(
-                TEXT("ENEMY HP: %.0f / %.0f"),
-                C_CurrentBatEnemy->C_CurrentHealth,
-                C_CurrentBatEnemy->C_MaxHealth
-            );
-
-            GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, EnemyHPMessage);
-        }
-
         if (C_CurrentBatEnemy->C_CurrentHealth <= 0.0)
         {
-            if (GEngine)
-            {
-                GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, TEXT("BAT DEAD"));
-            }
-
             C_CurrentBatEnemy->Destroy();
+        	
             C_CurrentBatEnemy = nullptr;
+        	
             C_bInsideBatZone = false;
-
+        	
             if (QTEWidgetInstance)
             {
                 QTEWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
             }
-
             BP_QTE_SetVisible(false);
             return;
         }
-    }
-    else
-    {
-        if (GEngine)
-        {
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("C_CurrentBatEnemy is NOT valid"));
-        }
-
-        UE_LOG(LogTemp, Warning, TEXT("C_CurrentBatEnemy is NOT valid"));
     }
 
     if (C_bInsideBatZone && IsValid(C_CurrentBatEnemy))
@@ -724,7 +464,6 @@ void ABP_C_Player::C_SuccessRound()
 
 void ABP_C_Player::C_FaliRound()
 {
-	
 	if (!C_bQTEActive)
 	{
 		return;
@@ -733,30 +472,28 @@ void ABP_C_Player::C_FaliRound()
 	GetWorldTimerManager().ClearTimer(C_QTENextRoundTimerHandle);
 
 	C_bQTEActive = false;
+	
 	C_QTERemainingTime = 0.0;
+	
 	C_QTECurrentIndex = 0;
+	
 	C_QTESequence.Empty();
 
 	if (QTEWidgetInstance)
 	{
 		QTEWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
 	}
-
+	
 	BP_QTE_SetVisible(false);
+	
 	BP_QTE_ShowResult(false);
-
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("QTE FAIL"));
-	}
+	
 	C_TakeDamageFromEnemy();
 
 	const float RestartDelay = IsValid(C_CurrentBatEnemy)
 		? static_cast<float>(C_CurrentBatEnemy->C_AttackOnFailDelay)
 		: 1.0f;
 	
-
-
 	if (C_bInsideBatZone && IsValid(C_CurrentBatEnemy) && !C_bIsDead)
 	{
 		GetWorldTimerManager().SetTimer(
@@ -777,12 +514,8 @@ void ABP_C_Player::C_EnterBatZone(ABP_C_MainEnemy* BatEnemy)
 	}
 
 	C_CurrentBatEnemy = BatEnemy;
+	
 	C_bInsideBatZone = true;
-
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Cyan, TEXT("ENTER BAT ZONE"));
-	}
 
 	if (!C_bAutoStartQTEOnEnterZone)
 	{
@@ -808,27 +541,26 @@ void ABP_C_Player::C_ExitBatZone(ABP_C_MainEnemy* BatEnemy)
 	{
 		return;
 	}
-
+	
 	GetWorldTimerManager().ClearTimer(C_QTENextRoundTimerHandle);
-
+	
 	C_bInsideBatZone = false;
+	
 	C_bQTEActive = false;
+	
 	C_CurrentBatEnemy = nullptr;
+	
 	C_QTESequence.Empty();
+	
 	C_QTECurrentIndex = 0;
+	
 	C_QTERemainingTime = 0.0;
-
+	
 	if (QTEWidgetInstance)
 	{
 		QTEWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
 	}
-
 	BP_QTE_SetVisible(false);
-
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, TEXT("EXIT BAT ZONE"));
-	}
 }
 
 void ABP_C_Player::C_TakeDamageFromEnemy()
@@ -837,58 +569,50 @@ void ABP_C_Player::C_TakeDamageFromEnemy()
 	{
 		return;
 	}
-	
 	C_UpdPlayerAnimation(4, false );
+	
 	GetWorldTimerManager().SetTimer(DefaultAnimationDelay, [this]()
 			{
 			C_UpdPlayerAnimation(1,false );
-			},1.0f, false); // false = не зацикливать
+			},1.0f, false);
 	
 	ABP_C_MainEnemy* enemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
+	
 	if (!IsValid(enemy)) return;
+	
 	enemy->C_UpdEnemyAnimation(2);
-
+	
 	GetWorldTimerManager().SetTimer(EnemyAnimationDelay, [this]()
 		{
 			ABP_C_MainEnemy* eenemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
 			if (!IsValid(eenemy)) return;
 			eenemy->C_UpdEnemyAnimation(1);
-
-		},1.33f, false); // false = не зацикливать
-	
+		},1.33f, false);
 	
 	double Damage = IsValid(C_CurrentBatEnemy)
 		? C_CurrentBatEnemy->C_DamageToPlayerOnFail
 		: damage;
-
 	C_CurrentHealth = C_CurrentHealth - Damage;
+	
 	C_CurrentHealth = FMath::Clamp(C_CurrentHealth, 0.0, C_MaxHealth);
+	
 	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(MyWidgetInstance);
+	
 	if (!IsValid(MainUI)) return;
+	
 	MainUI->UpdateHPFromPlayer(C_CurrentHealth/C_MaxHealth);
-
-	if (GEngine)
-	{
-		const FString Message = FString::Printf(TEXT("PLAYER HP: %.0f"), C_CurrentHealth);
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, Message);
-	}
-
+	
 	if (C_CurrentHealth <= 0.0)
 	{
 		C_bIsDead = true;
+		
 		C_bQTEActive = false;
-
+		
 		if (QTEWidgetInstance)
 		{
 			QTEWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
 		}
-
 		BP_QTE_SetVisible(false);
-
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("PLAYER DEAD"));
-		}
 	}
 }
 
@@ -896,7 +620,6 @@ bool ABP_C_Player::C_IsQTEActive() const
 {
 	return C_bQTEActive;
 }
-//dobavil i izmenil
 
 void ABP_C_Player::C_HPBuff()
 {
@@ -904,13 +627,11 @@ void ABP_C_Player::C_HPBuff()
 	{
 		C_CurrentHealth = C_CurrentHealth + heal;
 		C_CurrentHealth = FMath::Clamp(C_CurrentHealth, 0.0f, C_MaxHealth);
-		
 	}
 }
 
 void ABP_C_Player::C_LavaDamage()
 {
-	
 }
 
 void ABP_C_Player::C_HealthBarSettings()
@@ -924,54 +645,35 @@ void ABP_C_Player::C_UpdPlayerHealth()
 void ABP_C_Player::C_UpdPlayerStammina()
 {
 }
-//void UC_WBP_MainUI::EventPlayerIsDead()
-//{
-		
-//}
-
 
 void ABP_C_Player::C_UpdPlayerAnimation(int numAnim, bool loopAnim)
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	
 	if (!AnimInstance) return;
-
+	
 	int32 Index = numAnim - 1;
-
+	
 	if (!Animations.IsValidIndex(Index) || !Animations[Index]) return;
-
-	// Блокируем повтор ТОЛЬКО для зацикленных анимаций (idle, walk, run)
-	// Одиночные (удар, урон) всегда запускаем заново
+	
 	if (loopAnim && CurrentAnimIndex == Index) return;
-
+	
 	CurrentAnimIndex = Index;
+	
 	GetMesh()->PlayAnimation(Animations[Index], loopAnim);
 }
 
-
-// IVAN UPDATE FOR LAVA===============================
 void ABP_C_Player::LavaDamage_Implementation()
 {
 	if (C_bIsDead) return;
-
+	
 	C_CurrentHealth -= 200.f;
+	
 	C_CurrentHealth = FMath::Clamp(C_CurrentHealth, 0.0, C_MaxHealth); // ======= MAYBEE DELETEEE=====
-
-	if (GEngine)
-	{
-		const FString Message = FString::Printf(TEXT("LAVA DAMAGE! HP: %.0f"), C_CurrentHealth);
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Orange, Message);
-	}
-
+	
 	if (C_CurrentHealth <= 0.0)
 	{
-		//playerIsDead=true;
 		C_bIsDead = true;
-		C_bQTEActive = false; // ======= MAYBEE DELETEEE=====
-
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("PLAYER DEAD FROM LAVA"));
-			UE_LOG(LogTemp, Warning, TEXT("PLAYER DEAD FROM LAVA"));
-		}
+		C_bQTEActive = false; 
 	}
 }

@@ -2,9 +2,6 @@
 
 #pragma once
 
-
-
-
 #include "Animation/AnimMontage.h"
 #include "C_WBP_MainUI.h"
 #include "CoreMinimal.h"
@@ -14,15 +11,13 @@
 #include "BP_C_Player.generated.h"
 
 
-
-
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 class UInputMappingContext;
-class ABP_C_MainEnemy; //добавил 
+class ABP_C_MainEnemy;
 
-UENUM(BlueprintType)                    // ← Обязательно для Blueprint
+UENUM(BlueprintType)
 enum class E_QTEDirection : uint8
 {
 	Up          UMETA(DisplayName = "Up"),
@@ -38,18 +33,15 @@ class ABP_C_Player : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	ABP_C_Player();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
+	virtual void BeginPlay() override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	
@@ -80,7 +72,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "UI|Pause")
 	TObjectPtr<UUserWidget> PauseMenuInstance;
 	
-	//dobavil
 	UPROPERTY(EditAnywhere, Category = "Input|QTE")
 	UInputAction* QTEUpAction;
 
@@ -92,23 +83,29 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Input|QTE")
 	UInputAction* QTERightAction;
-	//dobavil
 	
 	void PlayerJump();
+	
 	void PlayerMove(const FInputActionValue& ActionValue);
+	
 	void PlayerStopMove(const FInputActionValue& ActionValue);
+	
 	void PlayerStartDash(const FInputActionValue& ActionValue);
+	
 	void PlayerEndDash(const FInputActionValue& ActionValue);
+	
 	void PlayerPause();
 	
-	//dobavil
 	void QTEInputUp(const FInputActionValue& ActionValue);
+	
 	void QTEInputDown(const FInputActionValue& ActionValue);
+	
 	void QTEInputLeft(const FInputActionValue& ActionValue);
+	
 	void QTEInputRight(const FInputActionValue& ActionValue);
-	//dobavil
 	
 	void PlayerLook(const FInputActionValue& ActionValue);
+	
 	void PlayerSecond();
 	
 	
@@ -125,8 +122,6 @@ public:
 	///Variables
 	///------------------------------------------
 	
-		/** Please add a variable description */
-	//pomenyal i dobavil
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="QTE")
 	bool C_bInsideBatZone = false;
 
@@ -158,11 +153,6 @@ public:
 	bool C_bBlockMovementDuringQTE = true;
 
 	FTimerHandle C_QTENextRoundTimerHandle;
-	//pomenyal i dobavil
-	
-	/** Please add a variable description --------------------------------------------------------- */
-	//UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default", meta=(EditInline="true"))
-	//WBP_QTECombat_C* C_QTEWidgetRef;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UUserWidget> MyWidgetClass; // Сюда в редакторе выберете нужный виджет
@@ -176,8 +166,7 @@ public:
 	FTimerHandle SecTimerHandle;
 	//enemy animation Delay
 	FTimerHandle EnemyAnimationDelay;
-	//enemy animation Delay
-	FTimerHandle DragonAnimationDelay;
+	
 	//default animation Delay
 	FTimerHandle DefaultAnimationDelay;
 	
@@ -187,7 +176,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "UI|QTE")
 	TObjectPtr<UUserWidget> QTEWidgetInstance;
-	//dobavil
+
 	
 	
 	/** Please add a variable description */
@@ -204,24 +193,7 @@ public:
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	double C_DeathRestartDelay;
-
-	
-	/*
-	 Please add a variable description 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	bool C_Animation_Run_Stay;
-
-	/* Please add a variable description 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	bool C_Animation_Attack;
-
-	/* Please add a variable description 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	double C_multiplication;
-*/
-	
-	
+	double C_DeathRestartDelay;	
 	
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
@@ -249,16 +221,14 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "UI")
 	UC_WBP_MainUI* MainUII;
 
-	/*
-	 * Camera
-	 */
+	///-------------------------------------------
+	/// Camera
+	///------------------------------------------
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	UCameraComponent* PlayerCamera;
 	
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	USpringArmComponent* SpringArm;
-
-	
 	
 	///-------------------------------------------
 	///Animations
@@ -273,13 +243,10 @@ public:
 	UPROPERTY()
 	int32 CurrentAnimIndex = -1; // -1 = nothing plays
 	
-	
-	
 	///-------------------------------------------
 	///UFunctions
 	///------------------------------------------
-	
-	//dobavil
+
 	UFUNCTION(BlueprintCallable, Category = "QTE")
 	void C_StartQTERound();
 
@@ -315,8 +282,6 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "QTE|UI")
 	void BP_QTE_ShowResult(bool bSuccess);
-	
-	//dobavil
 	
 	UFUNCTION(BlueprintCallable, Category = "Default")
 	void C_HPBuff();

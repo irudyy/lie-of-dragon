@@ -6,15 +6,7 @@
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "Components/StateTreeComponent.h"
-#include "Components/WidgetComponent.h"
-
-
-
-
 #include "BP_C_MainEnemy.generated.h"
-
-
-
 
 
 class USpringArmComponent;
@@ -25,9 +17,6 @@ class USphereComponent;
 class USkeletalMeshComponent;
 class UC_BP_EnemyWidget;
 class UUserWidget;
-	
-
-	
 
 
 UCLASS()
@@ -76,33 +65,11 @@ public:
 	void C_UpdEnemyAnimation(int numAnim);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	TArray<UAnimSequence*> enemyAnimations; // instead UAnimMontage*
+	TArray<UAnimSequence*> enemyAnimations; 
 	
 	UPROPERTY()
 	int32 enemyCurrentAnimIndex = -1; // -1 = nothing plays
 	
-	
-	
-	/*
-	 * Widget
-	 */
-/*
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
-	UWidgetComponent* WidgetHealthBar = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
-	TSubclassOf<UUserWidget> MyEnemyWidgetClass;
-
-	UPROPERTY(Transient)
-	TObjectPtr<UUserWidget> MyEnemyWidgetInstance = nullptr;
-
-	UPROPERTY(Transient)
-	UC_BP_EnemyWidget* EnemyHealthBarWidget = nullptr;
-*/
-/*	UFUNCTION(BlueprintCallable, Category="UI")
-	void UpdateEnemyHealthWidget();*/
-
-
 	/*
 	 * Components
 	 */
