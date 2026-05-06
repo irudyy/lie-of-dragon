@@ -20,15 +20,13 @@ AC_BP_pickubleitem::AC_BP_pickubleitem()
 	
 	SphereComp ->SetGenerateOverlapEvents(true);
 	SphereComp ->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	SphereComp ->SetCollisionResponseToAllChannels(ECR_Overlap); // ======= MAYBEE DELETEEE=====
+	SphereComp ->SetCollisionResponseToAllChannels(ECR_Overlap);
 
 }
 
 // Called when the game starts or when spawned
 void AC_BP_pickubleitem::BeginPlay()
 {
-	
-	
 	Super::BeginPlay();
 	
 	UE_LOG(LogTemp, Warning, TEXT("coin BeginPlay сработал"));
@@ -36,14 +34,12 @@ void AC_BP_pickubleitem::BeginPlay()
 	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &AC_BP_pickubleitem::CoinOnOverlapBegin);
 	
 	UE_LOG(LogTemp, Warning, TEXT("coin Overlap подписан"));
-	
 }
 
 // Called every frame
 void AC_BP_pickubleitem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
 }
 
 void AC_BP_pickubleitem::CoinOnOverlapBegin(UPrimitiveComponent* OverlappedComp,AActor* OtherActor,UPrimitiveComponent* OtherComp,int32 OtherBodyIndex,bool bFromSweep,const FHitResult& SweepResult)
@@ -57,11 +53,10 @@ void AC_BP_pickubleitem::CoinOnOverlapBegin(UPrimitiveComponent* OverlappedComp,
 
 	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(Player->MyWidgetInstance);
 	
-	
 	MainUI->UpdateScoreFromCoin(100);
+	//UPDATER STAMINA AND HP BAR (WE KNOW IS NOT A RIGTH PLACE, BUT IT IS WHAT IT IS)
 	MainUI->UpdateHPFromPlayer(Player->C_CurrentHealth/Player->C_MaxHealth);
 	
-	Player->C_CurrentStammina -= 20;
 	MainUI->UpdateStammFromPlayer(Player->C_CurrentStammina/Player->C_MaxStammina);
 	Destroy();
 	

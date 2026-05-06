@@ -178,6 +178,8 @@ public:
 	FTimerHandle EnemyAnimationDelay;
 	//enemy animation Delay
 	FTimerHandle DragonAnimationDelay;
+	//default animation Delay
+	FTimerHandle DefaultAnimationDelay;
 	
 	//dobavil
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|QTE")
@@ -263,7 +265,7 @@ public:
 	///------------------------------------------
 
 	UFUNCTION(BlueprintCallable, Category = "Default")
-	void C_UpdPlayerAnimation(int numAnim);
+	void C_UpdPlayerAnimation(int numAnim, bool loopAnim);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TArray<UAnimSequence*> Animations; // instead UAnimMontage*

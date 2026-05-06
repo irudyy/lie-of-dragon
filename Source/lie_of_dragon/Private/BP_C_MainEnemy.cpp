@@ -183,19 +183,22 @@ void ABP_C_MainEnemy::EnemyMove(const FInputActionValue& ActionValue)
 void ABP_C_MainEnemy::C_UpdEnemyAnimation(int numAnim)
 {
 	{
-		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		USkeletalMeshComponent* MeshComponent = GetMesh();
+		if (!MeshComponent) return;
+
+		UAnimInstance* AnimInstance = MeshComponent->GetAnimInstance();
 		if (!AnimInstance) return;
 
 		// numAnim начинается с 1, поэтому -1 для индекса массива
 		int32 Index = numAnim - 1;
 
 		if (!enemyAnimations.IsValidIndex(Index) || !enemyAnimations[Index]) return;
-    
+
 		// если эта анимация уже играет — не перезапускаем
 		if (enemyCurrentAnimIndex == Index) return;
 
 		enemyCurrentAnimIndex = Index;
-		GetMesh()->PlayAnimation(enemyAnimations[Index], true); // true = зацикливать
+		MeshComponent->PlayAnimation(enemyAnimations[Index], true); // true = зацикливать
 	}
 }
 

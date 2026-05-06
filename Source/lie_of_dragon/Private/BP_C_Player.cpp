@@ -93,7 +93,7 @@ void ABP_C_Player::BeginPlay()
 	MainUII = Cast<UC_WBP_MainUI>(MyWidgetInstance);
 	
 	
-	C_UpdPlayerAnimation(1);
+	C_UpdPlayerAnimation(1, true);
 	
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
@@ -139,6 +139,11 @@ void ABP_C_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
+	
+	if (C_CurrentHealth > C_MaxHealth)
+	{
+		C_CurrentHealth = C_MaxHealth;
+	}
 	
 	//respawn whole Scene
 	
@@ -299,13 +304,13 @@ void ABP_C_Player::PlayerMove(const FInputActionValue& ActionValue)
 	
 	AddMovementInput(GetActorForwardVector(), ActionVector.Y);
 	AddMovementInput(GetActorRightVector(), ActionVector.X);
-	C_UpdPlayerAnimation(2);
+	C_UpdPlayerAnimation(2, true);
 	// GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, TEXT("MOVING!"));
 }
 
 void ABP_C_Player::PlayerStopMove(const FInputActionValue& ActionValue)
 {
-	C_UpdPlayerAnimation(1);
+	C_UpdPlayerAnimation(1, false);
 }
 
 //izmenil
@@ -315,13 +320,13 @@ void ABP_C_Player::PlayerStartDash(const FInputActionValue& ActionValue)
 	
 	if (C_CurrentStammina <= 0)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
-		C_UpdPlayerAnimation(2);
+		GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+		C_UpdPlayerAnimation(2, true);
 	}
 	else
 	{
-		GetCharacterMovement()->MaxWalkSpeed = 1500.0f;
-		C_UpdPlayerAnimation(5);
+		GetCharacterMovement()->MaxWalkSpeed = 800.0f;
+		C_UpdPlayerAnimation(5, true);
 	}
 	if (GEngine)
 	{
@@ -330,7 +335,7 @@ void ABP_C_Player::PlayerStartDash(const FInputActionValue& ActionValue)
 }
 void ABP_C_Player::PlayerEndDash(const FInputActionValue& ActionValue)
 {
-	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("SPRINT OFF"));
@@ -382,12 +387,12 @@ void ABP_C_Player::PlayerSecond()
 		GetWorldTimerManager().ClearTimer(EnemyAnimationDelay);
 		GetWorldTimerManager().ClearTimer(C_QTENextRoundTimerHandle);
 
-		UGameplayStatics::SetGamePaused(GetWorld(), true);
+		//UGameplayStatics::SetGamePaused(GetWorld(), true);
 
 		FTimerDelegate TimerDel;
 		TimerDel.BindLambda([this]()
 		{
-			UGameplayStatics::SetGamePaused(GetWorld(), false);
+			//UGameplayStatics::SetGamePaused(GetWorld(), false);
 			UGameplayStatics::OpenLevel(this, FName("MenuLevel"));
 		});
 		GetWorldTimerManager().SetTimer(DoWTimerHandle, TimerDel, 5.0f, false);
@@ -398,9 +403,9 @@ void ABP_C_Player::PlayerSecond()
 
 	// Остальная логика...
 	if (C_CurrentStammina <= 0)
-		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+		GetCharacterMovement()->MaxWalkSpeed = 400.0f;
     
-	if (GetCharacterMovement()->MaxWalkSpeed == 1500.0f && C_CurrentStammina != 0)
+	if (GetCharacterMovement()->MaxWalkSpeed == 800.0f && C_CurrentStammina != 0)
 		C_CurrentStammina = C_CurrentStammina - 40;
 
 	if (C_CurrentStammina < 100)
@@ -603,8 +608,24 @@ void ABP_C_Player::C_SuccessRound()
     {
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Purple, TEXT("C_SUCCESSROUND ENTERED"));
     }
+	ABP_C_MainEnemy* enemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
+	if (!IsValid(enemy)) return;
+	enemy->C_UpdEnemyAnimation(3);
 	
-	C_UpdPlayerAnimation(3);
+	GetWorldTimerManager().SetTimer(EnemyAnimationDelay, [this]()
+		{
+			ABP_C_MainEnemy* eenemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
+			if (!IsValid(eenemy)) return;
+			eenemy->C_UpdEnemyAnimation(1);
+
+		},0.76f, false); // false = не зацикливать
+	
+	
+	C_UpdPlayerAnimation(3,false );
+	GetWorldTimerManager().SetTimer(DefaultAnimationDelay, [this]()
+			{
+			C_UpdPlayerAnimation(1,false );
+			},1.0f, false); // false = не зацикливать
     UE_LOG(LogTemp, Warning, TEXT("C_SUCCESSROUND ENTERED"));
 
     float baseScoreFromSuccesRound = 10.f;
@@ -816,18 +837,24 @@ void ABP_C_Player::C_TakeDamageFromEnemy()
 	{
 		return;
 	}
-	C_UpdPlayerAnimation(4);
 	
+	C_UpdPlayerAnimation(4, false );
+	GetWorldTimerManager().SetTimer(DefaultAnimationDelay, [this]()
+			{
+			C_UpdPlayerAnimation(1,false );
+			},1.0f, false); // false = не зацикливать
 	
 	ABP_C_MainEnemy* enemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
 	if (!IsValid(enemy)) return;
 	enemy->C_UpdEnemyAnimation(2);
-		GetWorldTimerManager().SetTimer(EnemyAnimationDelay, [this]()
-			{
-				ABP_C_MainEnemy* enemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
-				if (!IsValid(enemy)) return;
-				enemy->C_UpdEnemyAnimation(1);
-			}, 2.0f, false); // false = не зацикливать
+
+	GetWorldTimerManager().SetTimer(EnemyAnimationDelay, [this]()
+		{
+			ABP_C_MainEnemy* eenemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
+			if (!IsValid(eenemy)) return;
+			eenemy->C_UpdEnemyAnimation(1);
+
+		},1.33f, false); // false = не зацикливать
 	
 	
 	double Damage = IsValid(C_CurrentBatEnemy)
@@ -903,21 +930,21 @@ void ABP_C_Player::C_UpdPlayerStammina()
 //}
 
 
-void ABP_C_Player::C_UpdPlayerAnimation(int32 numAnim)
+void ABP_C_Player::C_UpdPlayerAnimation(int numAnim, bool loopAnim)
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (!AnimInstance) return;
 
-	// numAnim начинается с 1, поэтому -1 для индекса массива
 	int32 Index = numAnim - 1;
 
 	if (!Animations.IsValidIndex(Index) || !Animations[Index]) return;
-    
-	// если эта анимация уже играет — не перезапускаем
-	if (CurrentAnimIndex == Index) return;
+
+	// Блокируем повтор ТОЛЬКО для зацикленных анимаций (idle, walk, run)
+	// Одиночные (удар, урон) всегда запускаем заново
+	if (loopAnim && CurrentAnimIndex == Index) return;
 
 	CurrentAnimIndex = Index;
-	GetMesh()->PlayAnimation(Animations[Index], true); // true = зацикливать
+	GetMesh()->PlayAnimation(Animations[Index], loopAnim);
 }
 
 
@@ -937,6 +964,7 @@ void ABP_C_Player::LavaDamage_Implementation()
 
 	if (C_CurrentHealth <= 0.0)
 	{
+		//playerIsDead=true;
 		C_bIsDead = true;
 		C_bQTEActive = false; // ======= MAYBEE DELETEEE=====
 
