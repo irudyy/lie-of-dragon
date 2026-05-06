@@ -3,19 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "Components/StateTreeComponent.h"
-#include "Components/WidgetComponent.h"
+#include "InputActionValue.h"
 
-
-
-
-#include "BP_C_MainEnemy.generated.h"
-
-
-
-
+#include "C_BP_DragonEnemy.generated.h"
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -27,22 +19,17 @@ class UC_BP_EnemyWidget;
 class UUserWidget;
 	
 
-	
+
 
 
 UCLASS()
-
-
-
-class ABP_C_MainEnemy : public ACharacter
-
+class LIE_OF_DRAGON_API AC_BP_DragonEnemy : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	
 	// Sets default values for this character's properties
-	ABP_C_MainEnemy();
+	AC_BP_DragonEnemy();
 
 protected:
 	// Called when the game starts or when spawned
@@ -53,78 +40,28 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* DragonInputComponent) override;
+
 	
-	/*
-	 * Controller
-	*/
 	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputMappingContext* MappingContext;
+	UInputMappingContext* DragonMappingContext;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* MoveAction;
+	UInputAction* DragonMoveAction;
 	
-	void EnemyMove(const FInputActionValue& ActionValue);
+	void DragonMove(const FInputActionValue& ActionValue);
 	
-	
-	
-	/*
-	 * animations
-	 */
-	
-	UFUNCTION(BlueprintCallable, Category = "Default")
-	void C_UpdEnemyAnimation(int numAnim);
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	TArray<UAnimSequence*> enemyAnimations; // instead UAnimMontage*
-	
-	UPROPERTY()
-	int32 enemyCurrentAnimIndex = -1; // -1 = nothing plays
-	
-	
-	
-	/*
-	 * Widget
-	 */
-/*
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
-	UWidgetComponent* WidgetHealthBar = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
-	TSubclassOf<UUserWidget> MyEnemyWidgetClass;
-
-	UPROPERTY(Transient)
-	TObjectPtr<UUserWidget> MyEnemyWidgetInstance = nullptr;
-
-	UPROPERTY(Transient)
-	UC_BP_EnemyWidget* EnemyHealthBarWidget = nullptr;
-*/
-/*	UFUNCTION(BlueprintCallable, Category="UI")
-	void UpdateEnemyHealthWidget();*/
-
-
-	/*
-	 * Components
-	 */
-
-	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Components")
-	UStateTreeComponent* StateTree;
+	UStateTreeComponent* DragonStateTree;
 
-	/** Please add a variable description */
+	/** Please add a variable description 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Default")
 	USphereComponent* QTEZoneTEMP;
 
-	/** Please add a variable description */
+	 Please add a variable description 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Components")
-	USkeletalMeshComponent* BatMesh;
-
-
-	/*
-	 * Health / Combat Variables
-	 */
-
-	/** Please add a variable description */
+	USkeletalMeshComponent* DradonMesh;*/
+	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Variables")
 	double C_MaxHealth = 100;
 
@@ -134,16 +71,14 @@ public:
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Variables")
-	double C_DamagePerSuccess = 35;
+	double C_DamagePerSuccess = 9;
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Variables")
-	double C_DamageToPlayerOnFail = 25;
+	double C_DamageToPlayerOnFail = 51;
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Variables")
 	double C_AttackOnFailDelay = 0.2;
-
-
+	
 };
-

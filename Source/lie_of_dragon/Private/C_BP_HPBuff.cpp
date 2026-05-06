@@ -56,7 +56,7 @@ void AC_BP_HPBuff::HPBuffOnOverlapBegin(UPrimitiveComponent* OverlappedComp,AAct
 	UE_LOG(LogTemp, Warning, TEXT("IM sended message to player  HP"));
 	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(Player->MyWidgetInstance);
 	
-	Player->C_CurrentHealth += 20;
+	Player->C_CurrentHealth += 25;
 	MainUI->UpdateHPFromPlayer(Player->C_CurrentHealth/Player->C_MaxHealth);
 	
 	Destroy();

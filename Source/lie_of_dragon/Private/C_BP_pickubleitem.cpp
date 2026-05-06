@@ -58,7 +58,6 @@ void AC_BP_pickubleitem::CoinOnOverlapBegin(UPrimitiveComponent* OverlappedComp,
 	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(Player->MyWidgetInstance);
 	
 	
-	Player->C_CurrentHealth -= 20;
 	MainUI->UpdateScoreFromCoin(100);
 	MainUI->UpdateHPFromPlayer(Player->C_CurrentHealth/Player->C_MaxHealth);
 	

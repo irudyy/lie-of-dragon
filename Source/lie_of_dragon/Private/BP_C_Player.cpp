@@ -38,6 +38,7 @@ UE_LOG(LogTemp, Display, TEXT("Player %s has a score of: %d"), *PlayerName, Scor
 #include "TimerManager.h"
 #include "C_WBP_MainUI.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 static FString QTEDirectionToString(E_QTEDirection Direction)
 {
@@ -140,17 +141,7 @@ void ABP_C_Player::Tick(float DeltaTime)
 	
 	
 	//respawn whole Scene
-	if (C_CurrentHealth <= 0)
-	{
-		// Показать виджет "Игра окончена" (если есть)
-		// ...
-
-		// Через 5 секунд открыть меню
-		GetWorldTimerManager().SetTimer(DoWTimerHandle, [this]()
-		{
-			UGameplayStatics::OpenLevel(this, FName("MenuLevel"));
-		}, 5.0f, false); // false = не зацикливать
-	}
+	
 	
 	if (C_bQTEActive)
 	{
@@ -220,6 +211,11 @@ void ABP_C_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		//EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Canceled, this, &ABP_C_Player::PlayerStopDash);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Completed, this, &ABP_C_Player::PlayerEndDash);
 		
+		if (PauseAction)
+		{
+			EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Started, this, &ABP_C_Player::PlayerPause);
+		}
+		
 		//dobavil
 		if (QTEUpAction)
 		{
@@ -243,6 +239,46 @@ void ABP_C_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		//dobavil
 	}
 	
+}
+
+void ABP_C_Player::PlayerPause()
+{
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC) PC = UGameplayStatics::GetPlayerController(this, 0);
+	if (!PC) return;
+
+	const bool bNewPaused = !UGameplayStatics::IsGamePaused(this);
+	UGameplayStatics::SetGamePaused(this, bNewPaused);
+
+	if (bNewPaused)
+	{
+		// Создаём виджет один раз и переиспользуем
+		if (!PauseMenuInstance && PauseMenuClass)
+		{
+			PauseMenuInstance = CreateWidget<UUserWidget>(PC, PauseMenuClass);
+		}
+		if (PauseMenuInstance && !PauseMenuInstance->IsInViewport())
+		{
+			PauseMenuInstance->AddToViewport(100); // высокий ZOrder, чтобы поверх HUD
+		}
+
+		PC->SetShowMouseCursor(true);
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetHideCursorDuringCapture(false);
+		if (PauseMenuInstance) InputMode.SetWidgetToFocus(PauseMenuInstance->TakeWidget());
+		PC->SetInputMode(InputMode);
+	}
+	else
+	{
+		if (PauseMenuInstance && PauseMenuInstance->IsInViewport())
+		{
+			PauseMenuInstance->RemoveFromParent();
+		}
+
+		PC->SetShowMouseCursor(false);
+		PC->SetInputMode(FInputModeGameOnly());
+	}
 }
 
 void ABP_C_Player::PlayerJump()
@@ -280,11 +316,12 @@ void ABP_C_Player::PlayerStartDash(const FInputActionValue& ActionValue)
 	if (C_CurrentStammina <= 0)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+		C_UpdPlayerAnimation(2);
 	}
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 1500.0f;
-		
+		C_UpdPlayerAnimation(5);
 	}
 	if (GEngine)
 	{
@@ -333,39 +370,54 @@ void ABP_C_Player::PlayerLook(const FInputActionValue& ActionValue)
 
 void ABP_C_Player::PlayerSecond()
 {
-	GetWorldTimerManager().SetTimer(SecTimerHandle, [this]()
-			{
-				UE_LOG(LogTemp, Error, TEXT("Second"));
-				PlayerSecond();
-			}, 1.0f, false); 
-	
+	// Сначала проверяем живы ли мы вообще
+	if (!IsValid(this) || playerIsDead) return;
+
+	if (C_CurrentHealth <= 0 && playerIsDead == false)
+	{
+		playerIsDead = true;
+
+		// Останавливаем ВСЕ таймеры сразу
+		GetWorldTimerManager().ClearTimer(SecTimerHandle);
+		GetWorldTimerManager().ClearTimer(EnemyAnimationDelay);
+		GetWorldTimerManager().ClearTimer(C_QTENextRoundTimerHandle);
+
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
+
+		FTimerDelegate TimerDel;
+		TimerDel.BindLambda([this]()
+		{
+			UGameplayStatics::SetGamePaused(GetWorld(), false);
+			UGameplayStatics::OpenLevel(this, FName("MenuLevel"));
+		});
+		GetWorldTimerManager().SetTimer(DoWTimerHandle, TimerDel, 5.0f, false);
+		GetWorldTimerManager().UnPauseTimer(DoWTimerHandle);
+
+		return; // ← выходим, не перезапускаем таймер
+	}
+
+	// Остальная логика...
 	if (C_CurrentStammina <= 0)
-	{
 		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
-	}
+    
 	if (GetCharacterMovement()->MaxWalkSpeed == 1500.0f && C_CurrentStammina != 0)
-	{
 		C_CurrentStammina = C_CurrentStammina - 40;
-	}
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, TEXT("Second"));
-	}
-	if (C_CurrentStammina >= 100)
-	{
-	}
-	else
-	{
+
+	if (C_CurrentStammina < 100)
 		C_CurrentStammina = C_CurrentStammina + 20;
-	}
+
 	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::SanitizeFloat(C_CurrentStammina));
-	
+
 	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(MyWidgetInstance);
-	MainUI->UpdateStammFromPlayer(C_CurrentStammina/C_MaxStammina);
-	MainUI->UpdateHPFromPlayer(C_CurrentHealth/C_MaxHealth);
-	
-	
-	
+	if (!IsValid(MainUI)) return;
+	MainUI->UpdateStammFromPlayer(C_CurrentStammina / C_MaxStammina);
+	MainUI->UpdateHPFromPlayer(C_CurrentHealth / C_MaxHealth);
+
+	// Перезапускаем таймер только в самом конце
+	GetWorldTimerManager().SetTimer(SecTimerHandle, [this]()
+	{
+		PlayerSecond();
+	}, 1.0f, false);
 }
 
 //dobavil i izmenil
@@ -551,7 +603,8 @@ void ABP_C_Player::C_SuccessRound()
     {
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Purple, TEXT("C_SUCCESSROUND ENTERED"));
     }
-
+	
+	C_UpdPlayerAnimation(3);
     UE_LOG(LogTemp, Warning, TEXT("C_SUCCESSROUND ENTERED"));
 
     float baseScoreFromSuccesRound = 10.f;
@@ -675,12 +728,13 @@ void ABP_C_Player::C_FaliRound()
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("QTE FAIL"));
 	}
-
 	C_TakeDamageFromEnemy();
 
 	const float RestartDelay = IsValid(C_CurrentBatEnemy)
 		? static_cast<float>(C_CurrentBatEnemy->C_AttackOnFailDelay)
 		: 1.0f;
+	
+
 
 	if (C_bInsideBatZone && IsValid(C_CurrentBatEnemy) && !C_bIsDead)
 	{
@@ -762,7 +816,20 @@ void ABP_C_Player::C_TakeDamageFromEnemy()
 	{
 		return;
 	}
-
+	C_UpdPlayerAnimation(4);
+	
+	
+	ABP_C_MainEnemy* enemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
+	if (!IsValid(enemy)) return;
+	enemy->C_UpdEnemyAnimation(2);
+		GetWorldTimerManager().SetTimer(EnemyAnimationDelay, [this]()
+			{
+				ABP_C_MainEnemy* enemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
+				if (!IsValid(enemy)) return;
+				enemy->C_UpdEnemyAnimation(1);
+			}, 2.0f, false); // false = не зацикливать
+	
+	
 	double Damage = IsValid(C_CurrentBatEnemy)
 		? C_CurrentBatEnemy->C_DamageToPlayerOnFail
 		: damage;
@@ -770,6 +837,7 @@ void ABP_C_Player::C_TakeDamageFromEnemy()
 	C_CurrentHealth = C_CurrentHealth - Damage;
 	C_CurrentHealth = FMath::Clamp(C_CurrentHealth, 0.0, C_MaxHealth);
 	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(MyWidgetInstance);
+	if (!IsValid(MainUI)) return;
 	MainUI->UpdateHPFromPlayer(C_CurrentHealth/C_MaxHealth);
 
 	if (GEngine)
@@ -829,6 +897,11 @@ void ABP_C_Player::C_UpdPlayerHealth()
 void ABP_C_Player::C_UpdPlayerStammina()
 {
 }
+//void UC_WBP_MainUI::EventPlayerIsDead()
+//{
+		
+//}
+
 
 void ABP_C_Player::C_UpdPlayerAnimation(int32 numAnim)
 {

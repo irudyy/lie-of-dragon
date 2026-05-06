@@ -180,3 +180,22 @@ void ABP_C_MainEnemy::EnemyMove(const FInputActionValue& ActionValue)
 	AddMovementInput(GetActorRightVector(), ActionVector.X);
 }
 
+void ABP_C_MainEnemy::C_UpdEnemyAnimation(int numAnim)
+{
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (!AnimInstance) return;
+
+		// numAnim начинается с 1, поэтому -1 для индекса массива
+		int32 Index = numAnim - 1;
+
+		if (!enemyAnimations.IsValidIndex(Index) || !enemyAnimations[Index]) return;
+    
+		// если эта анимация уже играет — не перезапускаем
+		if (enemyCurrentAnimIndex == Index) return;
+
+		enemyCurrentAnimIndex = Index;
+		GetMesh()->PlayAnimation(enemyAnimations[Index], true); // true = зацикливать
+	}
+}
+

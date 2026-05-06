@@ -71,6 +71,15 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* DashAction;
 	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* PauseAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|Pause")
+	TSubclassOf<UUserWidget> PauseMenuClass;
+
+	UPROPERTY(BlueprintReadOnly, Category = "UI|Pause")
+	TObjectPtr<UUserWidget> PauseMenuInstance;
+	
 	//dobavil
 	UPROPERTY(EditAnywhere, Category = "Input|QTE")
 	UInputAction* QTEUpAction;
@@ -90,6 +99,7 @@ public:
 	void PlayerStopMove(const FInputActionValue& ActionValue);
 	void PlayerStartDash(const FInputActionValue& ActionValue);
 	void PlayerEndDash(const FInputActionValue& ActionValue);
+	void PlayerPause();
 	
 	//dobavil
 	void QTEInputUp(const FInputActionValue& ActionValue);
@@ -164,6 +174,10 @@ public:
 	FTimerHandle DoWTimerHandle;
 	//1 second timer
 	FTimerHandle SecTimerHandle;
+	//enemy animation Delay
+	FTimerHandle EnemyAnimationDelay;
+	//enemy animation Delay
+	FTimerHandle DragonAnimationDelay;
 	
 	//dobavil
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|QTE")
@@ -227,6 +241,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
 	float heal=25.f;
 	
+	/** Please add a variable description */
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default") bool playerIsDead=false;
 	
 	UPROPERTY(BlueprintReadWrite, Category = "UI")
 	UC_WBP_MainUI* MainUII;
@@ -250,10 +266,12 @@ public:
 	void C_UpdPlayerAnimation(int numAnim);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	TArray<UAnimSequence*> Animations; // вместо UAnimMontage*
+	TArray<UAnimSequence*> Animations; // instead UAnimMontage*
 	
 	UPROPERTY()
-	int32 CurrentAnimIndex = -1; // -1 = ничего не играет
+	int32 CurrentAnimIndex = -1; // -1 = nothing plays
+	
+	
 	
 	///-------------------------------------------
 	///UFunctions
@@ -295,6 +313,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "QTE|UI")
 	void BP_QTE_ShowResult(bool bSuccess);
+	
 	//dobavil
 	
 	UFUNCTION(BlueprintCallable, Category = "Default")
@@ -307,6 +326,8 @@ public:
 	void C_UpdPlayerHealth();
 	UFUNCTION(BlueprintCallable, Category = "Default")
 	void C_UpdPlayerStammina();
+	
+	
 	
 	
 	
