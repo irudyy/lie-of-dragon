@@ -2,7 +2,6 @@
 
 #include "C_BP_HPBuff.h"
 #include "BP_C_Player.h"
-#include "InputCoreTypes.h"
 #include "C_WBP_MainUI.h"
 
 AC_BP_HPBuff::AC_BP_HPBuff()

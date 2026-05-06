@@ -5,9 +5,6 @@
 #include "BP_C_Player.h"
 
 
-
-
-
 // Sets default values
 AC_BP_LAVA::AC_BP_LAVA()
 {

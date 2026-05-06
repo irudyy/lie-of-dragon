@@ -2,7 +2,6 @@
 
 #pragma once
 
-
 #include "Components/BoxComponent.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
