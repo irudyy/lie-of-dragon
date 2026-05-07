@@ -669,7 +669,7 @@ void ABP_C_Player::LavaDamage_Implementation()
 	
 	C_CurrentHealth -= 200.f;
 	
-	C_CurrentHealth = FMath::Clamp(C_CurrentHealth, 0.0, C_MaxHealth); // ======= MAYBEE DELETEEE=====
+	C_CurrentHealth = FMath::Clamp(C_CurrentHealth, 0.0, C_MaxHealth); 
 	
 	if (C_CurrentHealth <= 0.0)
 	{
