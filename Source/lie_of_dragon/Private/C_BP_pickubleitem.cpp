@@ -8,7 +8,6 @@
 // Sets default values
 AC_BP_pickubleitem::AC_BP_pickubleitem()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	SphereComp  = CreateDefaultSubobject<USphereComponent>(TEXT("C_BoxCollision"));
 	RootComponent = SphereComp;
@@ -42,7 +41,7 @@ void AC_BP_pickubleitem::CoinOnOverlapBegin(UPrimitiveComponent* OverlappedComp,
 	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(Player->MyWidgetInstance);
 	
 	MainUI->UpdateScoreFromCoin(100);
-	//UPDATER STAMINA AND HP BAR (WE KNOW IS NOT A RIGTH PLACE, BUT IT IS WHAT IT IS)
+	//UPDATER STAMINA AND HP BAR (WE KNOW IS NOT A RIGHT PLACE, BUT IT IS WHAT IT IS)
 	MainUI->UpdateHPFromPlayer(Player->C_CurrentHealth/Player->C_MaxHealth);
 	
 	MainUI->UpdateStamFromPlayer(Player->C_CurrentStamina/Player->C_MaxStamina);

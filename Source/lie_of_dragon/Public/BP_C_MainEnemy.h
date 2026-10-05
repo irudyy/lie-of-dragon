@@ -74,15 +74,13 @@ public:
 	 * Components
 	 */
 
-	/** Please add a variable description */
+	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Components")
 	UStateTreeComponent* StateTree;
 
-	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Default")
 	USphereComponent* QTEZoneTEMP;
 
-	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Components")
 	USkeletalMeshComponent* BatMesh;
 
@@ -91,23 +89,18 @@ public:
 	 * Health / Combat Variables
 	 */
 
-	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Variables")
 	double C_MaxHealth = 100;
 
-	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Variables")
 	double C_CurrentHealth = 100;
 
-	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Variables")
 	double C_DamagePerSuccess = 35;
 
-	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Variables")
 	double C_DamageToPlayerOnFail = 25;
 
-	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Variables")
 	double C_AttackOnFailDelay = 0.2;
 

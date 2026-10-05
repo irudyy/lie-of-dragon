@@ -1,12 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "C_BP_HPBuff.h"
 #include "BP_C_Player.h"
 #include "C_WBP_MainUI.h"
 
 AC_BP_HPBuff::AC_BP_HPBuff()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+
 	PrimaryActorTick.bCanEverTick = true;
 	
 	SphereComp  = CreateDefaultSubobject<USphereComponent>(TEXT("C_SphereCollision"));

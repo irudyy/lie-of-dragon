@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "BP_C_Player.h"
 #include "BP_C_MainEnemy.h"
 #include "EnhancedInputComponent.h"
@@ -17,10 +15,8 @@ ABP_C_Player::ABP_C_Player()
 {
 	GetCapsuleComponent()->InitCapsuleSize(99.f, 99.0f);
 	PrimaryActorTick.bCanEverTick = true;
-	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	SpringArm->SetupAttachment(GetRootComponent());
-	
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	PlayerCamera->SetupAttachment(SpringArm);
 }
@@ -28,16 +24,12 @@ ABP_C_Player::ABP_C_Player()
 void ABP_C_Player::BeginPlay()
 {
 	Super::BeginPlay();
-
 	GetWorldTimerManager().SetTimer(SecTimerHandle, [this]()
 			{
 				PlayerSecond();
 			}, 1.0f, false);
-	
 	MainUII = Cast<UC_WBP_MainUI>(MyWidgetInstance);
-	
 	C_UpdPlayerAnimation(1, true);
-	
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
 		if (ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
@@ -113,13 +105,11 @@ void ABP_C_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 void ABP_C_Player::PlayerPause()
 {
 	APlayerController* PC = Cast<APlayerController>(GetController());
-	
 	if (!PC) PC = UGameplayStatics::GetPlayerController(this, 0);
 	if (!PC) return;
-	
 	const bool bNewPaused = !UGameplayStatics::IsGamePaused(this);
 	UGameplayStatics::SetGamePaused(this, bNewPaused);
-
+	
 	if (bNewPaused)
 	{
 		if (!PauseMenuInstance && PauseMenuClass)	PauseMenuInstance = CreateWidget<UUserWidget>(PC, PauseMenuClass);
@@ -144,20 +134,13 @@ void ABP_C_Player::PlayerPause()
 	}
 }
 
-
-
 void ABP_C_Player::PlayerMove(const FInputActionValue& ActionValue)
 {
 	FVector2D ActionVector = ActionValue.Get<FVector2D>();
-	
 	float Angle = FMath::RadiansToDegrees(FMath::Atan2(ActionVector.X, ActionVector.Y));
-
 	GetMesh()->SetRelativeRotation(FRotator(0.f, Angle-90.f, 0.f));
-	
 	AddMovementInput(GetActorForwardVector(), ActionVector.Y);
-	
 	AddMovementInput(GetActorRightVector(), ActionVector.X);
-	
 	C_UpdPlayerAnimation(2, true);
 }
 
@@ -189,14 +172,17 @@ void ABP_C_Player::QTEInputUp(const FInputActionValue& ActionValue)
 {
 	C_HandleQTEInput(E_QTEDirection::Up);
 }
+
 void ABP_C_Player::QTEInputDown(const FInputActionValue& ActionValue)
 {
 	C_HandleQTEInput(E_QTEDirection::Down);
 }
+
 void ABP_C_Player::QTEInputLeft(const FInputActionValue& ActionValue)
 {
 	C_HandleQTEInput(E_QTEDirection::Left);
 }
+
 void ABP_C_Player::QTEInputRight(const FInputActionValue& ActionValue)
 {
 	C_HandleQTEInput(E_QTEDirection::Right);
@@ -233,19 +219,13 @@ void ABP_C_Player::PlayerSecond()
 
 		return;
 	}
-
 	if (C_CurrentStamina <= 0)		GetCharacterMovement()->MaxWalkSpeed = 400.0f;
 	if (GetCharacterMovement()->MaxWalkSpeed == 800.0f && C_CurrentStamina != 0)		C_CurrentStamina = C_CurrentStamina - 40;
 	if (C_CurrentStamina < 100)	C_CurrentStamina = C_CurrentStamina + 20;
-
 	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(MyWidgetInstance);
-	
 	if (!IsValid(MainUI)) return;
-	
 	MainUI->UpdateStamFromPlayer(C_CurrentStamina / C_MaxStamina);
-	
 	MainUI->UpdateHPFromPlayer(C_CurrentHealth / C_MaxHealth);
-
 	GetWorldTimerManager().SetTimer(SecTimerHandle, [this]()
 	{
 		PlayerSecond();
@@ -283,17 +263,12 @@ void ABP_C_Player::C_StartQTERound()
 	}
 
 	C_QTESequence.Empty();
-	
 	C_QTECurrentIndex = 0;
-	
 	C_QTERemainingTime = C_QTETimeLimit;
-	
 	C_bQTEActive = true;
-
 	for (int32 i = 0; i < C_QTESequenceLength; i++)
 	{
 		const int32 RandomDirection = FMath::RandRange(0, 3);
-
 		switch (RandomDirection)
 		{
 		case 0:
@@ -319,9 +294,7 @@ void ABP_C_Player::C_StartQTERound()
 		QTEWidgetInstance->SetVisibility(ESlateVisibility::Visible);
 	}
 	BP_QTE_SetVisible(true);
-	
 	BP_QTE_SetupSequence(C_QTESequence);
-	
 	BP_QTE_HighlightArrow(C_QTECurrentIndex);
 }
 
@@ -351,7 +324,6 @@ void ABP_C_Player::C_HandleQTEInput(E_QTEDirection PressedDirection)
 	}
 
 	const E_QTEDirection ExpectedDirection = C_QTESequence[C_QTECurrentIndex];
-
 	if (PressedDirection != ExpectedDirection)
 	{
 		C_FaliRound();
@@ -372,11 +344,8 @@ void ABP_C_Player::C_HandleQTEInput(E_QTEDirection PressedDirection)
 void ABP_C_Player::C_SuccessRound()
 {
 	ABP_C_MainEnemy* enemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
-	
 	if (!IsValid(enemy)) return;
-	
 	enemy->C_UpdEnemyAnimation(3);
-	
 	GetWorldTimerManager().SetTimer(EnemyAnimationDelay, [this]()
 		{
 			ABP_C_MainEnemy* eenemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
@@ -386,7 +355,6 @@ void ABP_C_Player::C_SuccessRound()
 		},0.76f, false);
 	
 	C_UpdPlayerAnimation(3,false );
-	
 	GetWorldTimerManager().SetTimer(DefaultAnimationDelay, [this]()
 			{
 			C_UpdPlayerAnimation(1,false );
@@ -396,9 +364,8 @@ void ABP_C_Player::C_SuccessRound()
     {
         return;
     }
-	
+
     GetWorldTimerManager().ClearTimer(C_QTENextRoundTimerHandle);
-	
     UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(MyWidgetInstance);
 	
     if (MainUI)
@@ -408,21 +375,15 @@ void ABP_C_Player::C_SuccessRound()
     }
 	
     C_bQTEActive = false;
-	
     C_QTERemainingTime = 0.0;
-	
     C_QTECurrentIndex = 0;
-	
     C_QTESequence.Empty();
-	
     if (QTEWidgetInstance)
     {
         QTEWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
     }
     BP_QTE_SetVisible(false);
-	
     BP_QTE_ShowResult(true);
-	
     if (IsValid(C_CurrentBatEnemy))
     {
         C_CurrentBatEnemy->C_CurrentHealth = FMath::Max(
@@ -432,11 +393,8 @@ void ABP_C_Player::C_SuccessRound()
         if (C_CurrentBatEnemy->C_CurrentHealth <= 0.0)
         {
             C_CurrentBatEnemy->Destroy();
-        	
             C_CurrentBatEnemy = nullptr;
-        	
             C_bInsideBatZone = false;
-        	
             if (QTEWidgetInstance)
             {
                 QTEWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
@@ -466,26 +424,18 @@ void ABP_C_Player::C_FaliRound()
 	}
 
 	GetWorldTimerManager().ClearTimer(C_QTENextRoundTimerHandle);
-
 	C_bQTEActive = false;
-	
 	C_QTERemainingTime = 0.0;
-	
 	C_QTECurrentIndex = 0;
-	
 	C_QTESequence.Empty();
-
 	if (QTEWidgetInstance)
 	{
 		QTEWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
 	}
 	
 	BP_QTE_SetVisible(false);
-	
 	BP_QTE_ShowResult(false);
-	
 	C_TakeDamageFromEnemy();
-
 	const float RestartDelay = IsValid(C_CurrentBatEnemy)
 		? static_cast<float>(C_CurrentBatEnemy->C_AttackOnFailDelay)
 		: 1.0f;
@@ -516,11 +466,8 @@ void ABP_C_Player::C_EnterBatZone(ABP_C_MainEnemy* BatEnemy)
 	{
 		return;
 	}
-
 	C_CurrentBatEnemy = BatEnemy;
-	
 	C_bInsideBatZone = true;
-
 	if (!C_bAutoStartQTEOnEnterZone)
 	{
 		return;
@@ -547,19 +494,12 @@ void ABP_C_Player::C_ExitBatZone(ABP_C_MainEnemy* BatEnemy)
 	}
 	
 	GetWorldTimerManager().ClearTimer(C_QTENextRoundTimerHandle);
-	
 	C_bInsideBatZone = false;
-	
 	C_bQTEActive = false;
-	
 	C_CurrentBatEnemy = nullptr;
-	
 	C_QTESequence.Empty();
-	
 	C_QTECurrentIndex = 0;
-	
 	C_QTERemainingTime = 0.0;
-	
 	if (QTEWidgetInstance)
 	{
 		QTEWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
@@ -581,11 +521,9 @@ void ABP_C_Player::C_TakeDamageFromEnemy()
 			},1.0f, false);
 	
 	ABP_C_MainEnemy* enemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
-	
 	if (!IsValid(enemy)) return;
 	
 	enemy->C_UpdEnemyAnimation(2);
-	
 	GetWorldTimerManager().SetTimer(EnemyAnimationDelay, [this]()
 		{
 			ABP_C_MainEnemy* eenemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
@@ -597,24 +535,17 @@ void ABP_C_Player::C_TakeDamageFromEnemy()
 		? C_CurrentBatEnemy->C_DamageToPlayerOnFail
 		: damage;
 	C_CurrentHealth = C_CurrentHealth - Damage;
-	
 	C_CurrentHealth = FMath::Clamp(C_CurrentHealth, 0.0, C_MaxHealth);
-	
 	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(MyWidgetInstance);
-	
 	if (!IsValid(MainUI)) return;
-	
 	MainUI->UpdateHPFromPlayer(C_CurrentHealth/C_MaxHealth);
 	
 	if (C_CurrentHealth <= 0.0)
 	{
 		C_bIsDead = true;
-		
 		GetCharacterMovement()->StopMovementImmediately();
 		GetCharacterMovement()->DisableMovement();
-		
 		C_bQTEActive = false;
-		
 		if (QTEWidgetInstance)
 		{
 			QTEWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
@@ -656,28 +587,19 @@ void ABP_C_Player::C_UpdPlayerStamina()
 void ABP_C_Player::C_UpdPlayerAnimation(int numAnim, bool loopAnim)
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	
 	if (!AnimInstance) return;
-	
 	int32 Index = numAnim - 1;
-	
 	if (!Animations.IsValidIndex(Index) || !Animations[Index]) return;
-	
 	if (loopAnim && CurrentAnimIndex == Index) return;
-	
 	CurrentAnimIndex = Index;
-	
 	GetMesh()->PlayAnimation(Animations[Index], loopAnim);
 }
 
 void ABP_C_Player::LavaDamage_Implementation()
 {
 	if (C_bIsDead) return;
-	
 	C_CurrentHealth -= 200.f;
-	
 	C_CurrentHealth = FMath::Clamp(C_CurrentHealth, 0.0, C_MaxHealth); 
-	
 	if (C_CurrentHealth <= 0.0)
 	{
 		C_bIsDead = true;
