@@ -28,15 +28,18 @@ void AC_BP_HPBuff::BeginPlay()
 
 // Called every frame
 void AC_BP_HPBuff::Tick(float DeltaTime)
-{
+{	
 	Super::Tick(DeltaTime);
 }
 
 void AC_BP_HPBuff::HPBuffOnOverlapBegin(UPrimitiveComponent* OverlappedComp,AActor* OtherActor,UPrimitiveComponent* OtherComp,int32 OtherBodyIndex,bool bFromSweep,const FHitResult& SweepResult)
 {
+	
 	ABP_C_Player* Player = Cast<ABP_C_Player>(OtherActor);
 	
 	if (!IsValid(Player)) return;
+	
+	if (Player->C_CurrentHealth >= Player->C_MaxHealth) return;
 	
 	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(Player->MyWidgetInstance);
 	

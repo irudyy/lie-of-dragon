@@ -45,7 +45,7 @@ void AC_BP_pickubleitem::CoinOnOverlapBegin(UPrimitiveComponent* OverlappedComp,
 	//UPDATER STAMINA AND HP BAR (WE KNOW IS NOT A RIGTH PLACE, BUT IT IS WHAT IT IS)
 	MainUI->UpdateHPFromPlayer(Player->C_CurrentHealth/Player->C_MaxHealth);
 	
-	MainUI->UpdateStammFromPlayer(Player->C_CurrentStammina/Player->C_MaxStammina);
+	MainUI->UpdateStamFromPlayer(Player->C_CurrentStamina/Player->C_MaxStamina);
 	Destroy();
 	
 }

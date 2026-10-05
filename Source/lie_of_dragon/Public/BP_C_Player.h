@@ -54,8 +54,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* MoveAction;
 
-	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* JumpAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* LookAction;
@@ -83,8 +81,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Input|QTE")
 	UInputAction* QTERightAction;
-	
-	void PlayerJump();
 	
 	void PlayerMove(const FInputActionValue& ActionValue);
 	
@@ -155,12 +151,12 @@ public:
 	FTimerHandle C_QTENextRoundTimerHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
-	TSubclassOf<UUserWidget> MyWidgetClass; // Сюда в редакторе выберете нужный виджет
+	TSubclassOf<UUserWidget> MyWidgetClass; 
 
 	UPROPERTY()
-	TObjectPtr<UUserWidget> MyWidgetInstance; // Ссылка на созданный экземпляр
+	TObjectPtr<UUserWidget> MyWidgetInstance; 
 	
-	//Death or Win Timer (DoW Timer)
+	//Death or Win Timer
 	FTimerHandle DoWTimerHandle;
 	//1 second timer
 	FTimerHandle SecTimerHandle;
@@ -170,7 +166,6 @@ public:
 	//default animation Delay
 	FTimerHandle DefaultAnimationDelay;
 	
-	//dobavil
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|QTE")
 	TSubclassOf<UUserWidget> QTEWidgetClass;
 
@@ -201,11 +196,11 @@ public:
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	double C_CurrentStammina=100;
+	double C_CurrentStamina=100;
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	double C_MaxStammina=100;
+	double C_MaxStamina=100;
 	
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
@@ -292,7 +287,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Default")
 	void C_UpdPlayerHealth();
 	UFUNCTION(BlueprintCallable, Category = "Default")
-	void C_UpdPlayerStammina();
+	void C_UpdPlayerStamina();
 	
 	
 	

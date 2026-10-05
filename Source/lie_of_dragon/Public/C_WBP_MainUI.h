@@ -25,8 +25,8 @@ public:
 	virtual void UpdateHPFromPlayer_Implementation(float HPPercent);
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HP")
-	void UpdateStammFromPlayer(float StammPercent);
-	virtual void UpdateStammFromPlayer_Implementation(float StammPercent);
+	void UpdateStamFromPlayer(float StamPercent);
+	virtual void UpdateStamFromPlayer_Implementation(float StamPercent);
 	
 	
 };

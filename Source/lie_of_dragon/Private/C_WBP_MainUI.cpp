@@ -10,7 +10,7 @@ void UC_WBP_MainUI::UpdateHPFromPlayer_Implementation(float HPPercent)
 {
 }
 
-void UC_WBP_MainUI::UpdateStammFromPlayer_Implementation(float HPPercent)
+void UC_WBP_MainUI::UpdateStamFromPlayer_Implementation(float HPPercent)
 {
 }
 

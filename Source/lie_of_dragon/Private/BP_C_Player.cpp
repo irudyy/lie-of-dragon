@@ -96,7 +96,6 @@ void ABP_C_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	if 	(UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		EnhancedInputComponent -> BindAction(JumpAction, ETriggerEvent::Triggered, this, &ABP_C_Player::PlayerJump);
 		EnhancedInputComponent -> BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABP_C_Player::PlayerMove);
 		EnhancedInputComponent -> BindAction(MoveAction, ETriggerEvent::Completed, this, &ABP_C_Player::PlayerStopMove);
 		EnhancedInputComponent -> BindAction(LookAction, ETriggerEvent::Triggered, this, &ABP_C_Player::PlayerLook);
@@ -145,10 +144,7 @@ void ABP_C_Player::PlayerPause()
 	}
 }
 
-void ABP_C_Player::PlayerJump()
-{
-	Jump();
-}
+
 
 void ABP_C_Player::PlayerMove(const FInputActionValue& ActionValue)
 {
@@ -172,7 +168,7 @@ void ABP_C_Player::PlayerStopMove(const FInputActionValue& ActionValue)
 
 void ABP_C_Player::PlayerStartDash(const FInputActionValue& ActionValue)
 {
-	if (C_CurrentStammina <= 0)
+	if (C_CurrentStamina <= 0)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 400.0f;
 		C_UpdPlayerAnimation(2, true);
@@ -238,15 +234,15 @@ void ABP_C_Player::PlayerSecond()
 		return;
 	}
 
-	if (C_CurrentStammina <= 0)		GetCharacterMovement()->MaxWalkSpeed = 400.0f;
-	if (GetCharacterMovement()->MaxWalkSpeed == 800.0f && C_CurrentStammina != 0)		C_CurrentStammina = C_CurrentStammina - 40;
-	if (C_CurrentStammina < 100)	C_CurrentStammina = C_CurrentStammina + 20;
+	if (C_CurrentStamina <= 0)		GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+	if (GetCharacterMovement()->MaxWalkSpeed == 800.0f && C_CurrentStamina != 0)		C_CurrentStamina = C_CurrentStamina - 40;
+	if (C_CurrentStamina < 100)	C_CurrentStamina = C_CurrentStamina + 20;
 
 	UC_WBP_MainUI* MainUI = Cast<UC_WBP_MainUI>(MyWidgetInstance);
 	
 	if (!IsValid(MainUI)) return;
 	
-	MainUI->UpdateStammFromPlayer(C_CurrentStammina / C_MaxStammina);
+	MainUI->UpdateStamFromPlayer(C_CurrentStamina / C_MaxStamina);
 	
 	MainUI->UpdateHPFromPlayer(C_CurrentHealth / C_MaxHealth);
 
@@ -504,6 +500,14 @@ void ABP_C_Player::C_FaliRound()
 			false
 		);
 	}
+	
+	GetWorldTimerManager().SetTimer(EnemyAnimationDelay, [this]()
+	{
+		ABP_C_MainEnemy* eenemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
+		if (!IsValid(eenemy)) return;
+		eenemy->C_UpdEnemyAnimation(1);
+
+	},0.76f, false);
 }
 
 void ABP_C_Player::C_EnterBatZone(ABP_C_MainEnemy* BatEnemy)
@@ -606,6 +610,9 @@ void ABP_C_Player::C_TakeDamageFromEnemy()
 	{
 		C_bIsDead = true;
 		
+		GetCharacterMovement()->StopMovementImmediately();
+		GetCharacterMovement()->DisableMovement();
+		
 		C_bQTEActive = false;
 		
 		if (QTEWidgetInstance)
@@ -642,7 +649,7 @@ void ABP_C_Player::C_UpdPlayerHealth()
 {
 }
 
-void ABP_C_Player::C_UpdPlayerStammina()
+void ABP_C_Player::C_UpdPlayerStamina()
 {
 }
 
