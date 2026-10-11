@@ -204,8 +204,6 @@ void ABP_C_Player::PlayerSecond()
 		playerIsDead = true;
 		GetWorldTimerManager().ClearTimer(SecTimerHandle);
 		
-		GetWorldTimerManager().ClearTimer(EnemyAnimationDelay);
-		
 		GetWorldTimerManager().ClearTimer(C_QTENextRoundTimerHandle);
 		
 		FTimerDelegate TimerDel;
@@ -450,14 +448,6 @@ void ABP_C_Player::C_FaliRound()
 			false
 		);
 	}
-	
-	GetWorldTimerManager().SetTimer(EnemyAnimationDelay, [this]()
-	{
-		ABP_C_MainEnemy* eenemy = Cast<ABP_C_MainEnemy>(C_CurrentBatEnemy);
-		if (!IsValid(eenemy)) return;
-		eenemy->C_UpdEnemyAnimation(1);
-
-	},0.76f, false);
 }
 
 void ABP_C_Player::C_EnterBatZone(ABP_C_MainEnemy* BatEnemy)

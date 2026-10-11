@@ -54,23 +54,22 @@ void ABP_C_MainEnemy::EnemyMove(const FInputActionValue& ActionValue)
 
 void ABP_C_MainEnemy::C_UpdEnemyAnimation(int numAnim)
 {
-	{
-		USkeletalMeshComponent* MeshComponent = GetMesh();
-		if (!MeshComponent) return;
+	USkeletalMeshComponent* MeshComponent = GetMesh();
+	if (!MeshComponent) return;
 
-		UAnimInstance* AnimInstance = MeshComponent->GetAnimInstance();
-		if (!AnimInstance) return;
+	UAnimInstance* AnimInstance = MeshComponent->GetAnimInstance();
+	if (!AnimInstance) return;
 
-		// numAnim starts from 1, so for massive index -1
-		int32 Index = numAnim - 1;
+	int32 Index = numAnim - 1;
 
-		if (!enemyAnimations.IsValidIndex(Index) || !enemyAnimations[Index]) return;
+	if (!enemyAnimations.IsValidIndex(Index) || !enemyAnimations[Index])
+		return;
 
-		//if this animation playing then do not restart this animation
-		if (enemyCurrentAnimIndex == Index) return;
+	if (numAnim == 1 && enemyCurrentAnimIndex == Index)
+		return;
 
-		enemyCurrentAnimIndex = Index;
-		MeshComponent->PlayAnimation(enemyAnimations[Index], true); // true = loop
-	}
+	enemyCurrentAnimIndex = Index;
+
+	MeshComponent->PlayAnimation(enemyAnimations[Index], numAnim == 1);
 }
 
